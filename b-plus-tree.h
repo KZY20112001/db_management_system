@@ -5,8 +5,8 @@
 using std::vector; 
 
 
-// Datablock structure representing the final datablock of a leaf node in the B+ Tree
-class Datablock {
+// KeyStruct structure representing the final KeyStruct of a leaf node in the B+ Tree
+class KeyStruct {
 public:
     float value;                // The value of the key
 
@@ -19,7 +19,7 @@ public:
 class Node {
 public:    
     int size; 
-    vector<Datablock*> key;
+    vector<KeyStruct*> key;
     vector<Node*> ptr;
     bool isLeaf;
 
@@ -35,15 +35,15 @@ private:
 
     Node* getLeafNode(float value);            // Utility function to get the leaf node of a given value
     Node* findParent(Node* cur, Node* child);  // Utility function to find the parent of a node
-    void insertInternalNode(Datablock* data, Node* parent, Node* child);  // Insert an internal node
+    void insertInternalNode(KeyStruct* data, Node* parent, Node* child);  // Insert an internal node
 
 public:
     BPlusTree();  // Constructor
     Node* getRoot();  // Getter for root
-    Datablock* search(float value);  // Search for a value in the tree
-    vector<Datablock*> searchInterval(float lowerBound, float upperBound);  // Search within a range
-    void insert(Datablock* data);  // Insert a new key into the tree
-    void bulkInsert(vector<Datablock *> dataList, bool sorted);
+    KeyStruct* search(float value);  // Search for a value in the tree
+    vector<KeyStruct*> searchInterval(float lowerBound, float upperBound);  // Search within a range
+    void insert(KeyStruct* data);  // Insert a new key into the tree
+    void bulkInsert(vector<KeyStruct *> dataList, bool sorted);
 };
 
 #endif // B_PLUS_TREE_H
