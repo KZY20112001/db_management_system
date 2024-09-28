@@ -51,7 +51,7 @@ class Disk_Storage
         int memoryused;
         int recordsize;
         Disk_Storage(int recordsize, int maxblock = MAX_BLOCK_ALLOWED, int blocksize = BLOCK_SIZE);
-        bool addblock();
+        bool addBlock();
         tuple<void * , Record> writeRecord(int recordsize);
         virtual ~Disk_Storage();
 

@@ -33,7 +33,7 @@ Disk_Storage::Disk_Storage(int recordsize, int maxblocks, int blocksize):
     blockptr = nullptr;
 }
 
-bool Disk_Storage::addblock()
+bool Disk_Storage::addBlock()
 {
         if (availblocks == 0) {
             storageptr = new Block();
@@ -57,7 +57,7 @@ tuple<void * , Record> Disk_Storage::writeRecord(int recordsize)
 {
     if (recordsize > blocksize) throw "Unable to reserve space for record";
     if (blockptr == nullptr || blockptr->availsize < recordsize){
-        if(!this->addblock()){
+        if(!this->addBlock()){
             throw "Unable to reserve space for record";
         }
     }
