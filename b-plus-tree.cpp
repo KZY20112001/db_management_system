@@ -16,7 +16,7 @@ Node::Node() {
 
 
 BPlusTree::BPlusTree() {
-    root = nullptr;
+    root = NULL;
 }
 
 Node* BPlusTree::getLeafNode(float value) {
@@ -203,7 +203,7 @@ void BPlusTree::insert(Datablock* data) {
     for (auto &d: leafNode->key){
         //check if key with same value already exists
         if (d->value == data->value){
-            d->addresses.push_back(data->addresses[0]); 
+            d->addresses.push_back(data->addresses[0]);
             return; 
         }
     }
