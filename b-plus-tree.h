@@ -41,7 +41,7 @@ public:
     BPlusTree();  // Constructor
     Node* getRoot();  // Getter for root
     Datablock* search(float value);  // Search for a value in the tree
-    vector<Datablock*> searchInterval(float lowerBound, float upperBound);  // Search within a range
+    vector<Datablock*> searchInterval(float lowerBound, float upperBound, int &numNodesAccessed);  // Search within a range
     void insert(Datablock* data);  // Insert a new key into the tree
     void bulkInsert(vector<Datablock *> dataList, bool sorted);
 };

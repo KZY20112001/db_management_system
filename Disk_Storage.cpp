@@ -2,15 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <tuple>
 
 using namespace std;
-
-Record::Record()
-{
-
-}
-
-Record::~Record() {};
 
 Block::Block(int blocksize):
     blocksize(blocksize), numrecords(0)
@@ -39,12 +33,14 @@ bool Disk_Storage::addblock()
             blockptr = storageptr;
             availblocks -= 1;
             blocksused += 1;
+            return true;
         }
         else if (availblocks > 0) {
             blockptr = storageptr + (blocksused * blocksize);
             new (blockptr) Block();
             availblocks -= 1;
             blocksused += 1;
+            return true;
         }
         else {
             cout << "No available blocks left";

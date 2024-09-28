@@ -165,9 +165,10 @@ Datablock* BPlusTree::search(float value) {
 }
 
 
-vector<Datablock*> BPlusTree::searchInterval(float lowerBound, float upperBound) {
+vector<Datablock*> BPlusTree::searchInterval(float lowerBound, float upperBound, int &numNodesAccessed) {
     vector<Datablock *> res;
     Node *leafNode = getLeafNode(lowerBound); 
+    numNodesAccessed++;
     
     while (leafNode){
         for (auto data: leafNode->key){
