@@ -1,8 +1,11 @@
 #include "b-plus-tree.h"
+#include <algorithm> 
+#include <iostream> 
+#include <cmath> 
+
 using std::cout;
-using std::endl; 
-
-
+using std::endl;
+using std::sort; 
 
 int MAX = 256; 
 
@@ -277,3 +280,15 @@ void BPlusTree::insert(Datablock* data) {
 }
 
 
+
+void BPlusTree::bulkInsert(vector<Datablock *> dataList, bool sorted){
+    if (!sorted){
+        sort(dataList.begin(), dataList.end(), compareData); 
+    }
+
+    
+}
+
+bool compareData(Datablock* d1, Datablock* d2) {
+    return d1->value < d2->value;
+}

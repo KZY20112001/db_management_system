@@ -1,9 +1,7 @@
 #ifndef B_PLUS_TREE_H
 #define B_PLUS_TREE_H
 
-#include <iostream>
 #include <vector>
-#include <cmath>  
 using std::vector; 
 
 
@@ -45,6 +43,7 @@ public:
     Datablock* search(float value);  // Search for a value in the tree
     vector<Datablock*> searchInterval(float lowerBound, float upperBound);  // Search within a range
     void insert(Datablock* data);  // Insert a new key into the tree
+    void bulkInsert(vector<Datablock *> dataList, bool sorted);
 };
 
 #endif // B_PLUS_TREE_H
