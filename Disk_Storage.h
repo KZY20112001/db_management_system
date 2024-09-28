@@ -3,28 +3,17 @@
 
 #include <string>
 #include <fstream>
+#include <tuple>
+#include <vector>
+#include "Record.h"
 
 const int BLOCK_SIZE = 4096;
 const int MAX_BLOCK_ALLOWED = 1000;
-
-class Record
-{
-    public:
-
-        Record();
-        virtual ~Record();
-
-    protected:
-
-    private:
-
-};
 
 class Block
 {
     public:
         unsigned char* reservedspace;
-        unsigned char* endptr; 
 
         int blocksize;
         int availsize;
@@ -52,7 +41,7 @@ class Disk_Storage
         int recordsize;
         Disk_Storage(int recordsize, int maxblock = MAX_BLOCK_ALLOWED, int blocksize = BLOCK_SIZE);
         bool addBlock();
-        tuple<void * , Record> writeRecord(int recordsize);
+        std::tuple<void*, Record> writeRecord(int recordsize, Record record);
         virtual ~Disk_Storage();
 
     protected:

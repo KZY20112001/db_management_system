@@ -2,21 +2,14 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <tuple>
 
 using namespace std;
-
-Record::Record()
-{
-
-}
-
-Record::~Record() {};
 
 Block::Block(int blocksize):
     blocksize(blocksize), numrecords(0)
 {
-    endptr =nullptr;
-    int blockheadersize = sizeof(int) * 3 + sizeof(unsigned char*) * 2;
+    int blockheadersize = sizeof(int) * 3 + sizeof(unsigned char*);
     reservedspace = new unsigned char[blocksize - blockheadersize];
     availsize = blocksize - blockheadersize;
 }
@@ -40,12 +33,14 @@ bool Disk_Storage::addBlock()
             blockptr = storageptr;
             availblocks -= 1;
             blocksused += 1;
+            return true;
         }
         else if (availblocks > 0) {
             blockptr = storageptr + (blocksused * blocksize);
             new (blockptr) Block();
             availblocks -= 1;
             blocksused += 1;
+            return true;
         }
         else {
             cout << "No available blocks left";
@@ -53,15 +48,23 @@ bool Disk_Storage::addBlock()
         }
 }
 
-tuple<void * , Record> Disk_Storage::writeRecord(int recordsize)
+tuple<void*, Record> Disk_Storage::writeRecord(int recordsize, Record record)
 {
-    if (recordsize > blocksize) throw "Unable to reserve space for record";
+    if (recordsize > blocksize) {
+        throw "Unable to reserve space for record";
+    }
     if (blockptr == nullptr || blockptr->availsize < recordsize){
         if(!this->addBlock()){
             throw "Unable to reserve space for record";
         }
     }
     // create a function to add record to block and return record
+    unsigned char* recordAddress = blockptr->reservedspace + (blocksize - blockptr->availsize);
+    memcpy(recordAddress, &record, recordsize);
+    blockptr->availsize -= recordsize;
+    blockptr->numrecords += 1;
+    this->memoryused += recordsize;
+    return make_tuple(static_cast<void*>(recordAddress), record);
 }
 
 Disk_Storage::~Disk_Storage()
