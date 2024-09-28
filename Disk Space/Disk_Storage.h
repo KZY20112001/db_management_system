@@ -23,10 +23,12 @@ class Record
 class Block
 {
     public:
+        unsigned char* reservedspace;
+        unsigned char* endptr; 
+
         int blocksize;
         int availsize;
         int numrecords;
-        unsigned char* reservedspace;
         Block(int blocksize = BLOCK_SIZE);
         virtual ~Block();
 

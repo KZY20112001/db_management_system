@@ -15,7 +15,8 @@ Record::~Record() {};
 Block::Block(int blocksize):
     blocksize(blocksize), numrecords(0)
 {
-    int blockheadersize = sizeof(int) * 3 + sizeof(unsigned char*);
+    endptr =nullptr;
+    int blockheadersize = sizeof(int) * 3 + sizeof(unsigned char*) * 2;
     reservedspace = new unsigned char[blocksize - blockheadersize];
     availsize = blocksize - blockheadersize;
 }
@@ -65,5 +66,5 @@ tuple<void * , Record> Disk_Storage::writeRecord(int recordsize)
 
 Disk_Storage::~Disk_Storage()
 {
-    
+
 }
