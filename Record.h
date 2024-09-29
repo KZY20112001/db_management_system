@@ -6,18 +6,20 @@
 struct Date {
     unsigned int day   : 5;  // 5 bits for day (1 to 31)
     unsigned int month : 4;  // 4 bits for month (1 to 12)
-    unsigned int year  : 14;  // 14 bits for year (1 to 16k)
+    unsigned int year  : 5;  // 5 bits for offset year (1 to 32)
 };
 
+// Record structure
 struct Record {
-    Date date;              // Date of the record
-    uint8_t PTS_home;       // 1 byte
-    float FG_PCT_home;      // 4 bytes, key
-    float FT_PCT_home;      // 4 bytes
-    float FG3_PCT_home;     // 4 bytes
-    uint8_t AST_home;       // 1 byte
-    uint8_t REB_home;       // 1 byte
-    bool HOME_TEAM_WINS;    // 1 byte
+    Date date;
+    unsigned int TEAM_ID_home;
+    unsigned int PTS_home;
+    float FG_PCT_home;
+    float FT_PCT_home;
+    float FG3_PCT_home;
+    unsigned int AST_home;
+    unsigned int REB_home;
+    bool HOME_TEAM_WINS;
 };
 
 #endif
