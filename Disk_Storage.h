@@ -29,7 +29,7 @@ class Block
 class Disk_Storage
 {
     public:
-        Block* storageptr;
+        unsigned char* storageptr;
         Block* blockptr;
 
         int maxblocks;
