@@ -284,7 +284,10 @@ void BPlusTree::insert(KeyStruct* data) {
 void BPlusTree::bulkInsert(vector<KeyStruct *> dataList, bool sorted){
     if (root)
         return; 
-    
+    for (auto k: dataList){
+        insert(k);
+        return; 
+    }
 
     if (!sorted){
         sort(dataList.begin(), dataList.end(), compareData); 
@@ -313,7 +316,7 @@ void BPlusTree::bulkInsert(vector<KeyStruct *> dataList, bool sorted){
     while (curLevel.size() > 1){
         vector<Node *> parentLevel; 
         Node *parentNode = new Node();
-         
+
     }
 
 }
