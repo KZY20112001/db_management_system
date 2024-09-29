@@ -27,6 +27,7 @@ class Block
         int availsize;
         int numrecords;
         Block(int blocksize = BLOCK_SIZE);
+        void listRecord();
         virtual ~Block();
 
     protected:
@@ -51,6 +52,8 @@ class Disk_Storage
         Disk_Storage(int recordsize, int maxblock = MAX_BLOCK_ALLOWED, int blocksize = BLOCK_SIZE);
         bool addBlock();
         std::tuple<Record_Location, float> writeRecord(int recordsize, Record record);
+        void listBlocks();
+        void listSpecificBlock(int id);
         virtual ~Disk_Storage();
 
     protected:
