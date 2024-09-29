@@ -21,7 +21,7 @@ Block::~Block()
 }
 
 Disk_Storage::Disk_Storage(int recordsize, int maxblocks, int blocksize):
-    recordsize(recordsize), maxblocks(maxblocks), blocksize(blocksize), availblocks(maxblocks), blocksused(0), numrecords(0), memoryused(0)
+    maxblocks(maxblocks), blocksize(blocksize), blocksused(0), availblocks(maxblocks), numrecords(0), memoryused(0), recordsize(recordsize)
 {
     storageptr = new unsigned char[maxblocks * blocksize];
     blockptr = nullptr;
