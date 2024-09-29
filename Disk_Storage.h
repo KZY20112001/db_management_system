@@ -5,10 +5,18 @@
 #include <fstream>
 #include <tuple>
 #include <vector>
+#include <unordered_map>
 #include "Record.h"
 
 const int BLOCK_SIZE = 4096;
 const int MAX_BLOCK_ALLOWED = 1000;
+
+struct Record_Location
+{
+    int blocknum;
+    int offset;
+};
+
 
 class Block
 {
@@ -31,7 +39,8 @@ class Disk_Storage
     public:
         unsigned char* storageptr;
         Block* blockptr;
-
+        
+        std::unordered_map<int, Block*> blockmap;
         int maxblocks;
         int blocksize;
         int blocksused;
@@ -41,7 +50,7 @@ class Disk_Storage
         int recordsize;
         Disk_Storage(int recordsize, int maxblock = MAX_BLOCK_ALLOWED, int blocksize = BLOCK_SIZE);
         bool addBlock();
-        std::tuple<void*, Record> writeRecord(int recordsize, Record record);
+        std::tuple<Record_Location, float> writeRecord(int recordsize, Record record);
         virtual ~Disk_Storage();
 
     protected:

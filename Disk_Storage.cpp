@@ -1,8 +1,6 @@
 #include "Disk_Storage.h"
 #include <iostream>
-#include <vector>
 #include <cstring>
-#include <tuple>
 
 using namespace std;
 
@@ -16,7 +14,10 @@ Block::Block(int blocksize):
 
 Block::~Block() 
 {
-
+    if (reservedspace != nullptr) {
+        delete[] reservedspace;
+        reservedspace = nullptr;
+    }
 }
 
 Disk_Storage::Disk_Storage(int recordsize, int maxblocks, int blocksize):
@@ -33,6 +34,8 @@ bool Disk_Storage::addBlock()
             blockptr =  new (blocklocation) Block();
             availblocks -= 1;
             blocksused += 1;
+
+            blockmap[blocksused] = blockptr;
             return true;
         }
         else {
@@ -41,7 +44,7 @@ bool Disk_Storage::addBlock()
         }
 }
 
-tuple<void*, Record> Disk_Storage::writeRecord(int recordsize, Record record)
+tuple<Record_Location, float> Disk_Storage::writeRecord(int recordsize, Record record)
 {
     if (recordsize > blocksize) {
         throw "Unable to reserve space for record";
@@ -52,15 +55,27 @@ tuple<void*, Record> Disk_Storage::writeRecord(int recordsize, Record record)
         }
     }
     // create a function to add record to block and return record
-    unsigned char* recordAddress = blockptr->reservedspace + (blocksize - blockptr->availsize);
+    int offset = blocksize - blockptr->availsize;
+    unsigned char* recordAddress = blockptr->reservedspace + offset;
+    Record_Location header = {blocksused, offset};
+
     memcpy(recordAddress, &record, recordsize);
     blockptr->availsize -= recordsize;
     blockptr->numrecords += 1;
     this->memoryused += recordsize;
-    return make_tuple(static_cast<void*>(recordAddress), record);
+
+    return make_tuple(header, record.FG_PCT_home);
 }
 
 Disk_Storage::~Disk_Storage()
 {
+    if (storageptr != nullptr) {
+            for (int i = 0; i < blocksused; i++) {
+                Block* block = reinterpret_cast<Block*>(storageptr + (i * blocksize));
+                block->~Block();
+            }
 
+            delete[] storageptr;
+            storageptr = nullptr;
+    }
 }
