@@ -62,6 +62,7 @@ tuple<Record_Location, float> Disk_Storage::writeRecord(int recordsize, Record r
     memcpy(recordAddress, &record, recordsize);
     blockptr->availsize -= recordsize;
     blockptr->numrecords += 1;
+    this->numrecords += 1;
     this->memoryused += recordsize;
 
     return make_tuple(header, record.FG_PCT_home);
