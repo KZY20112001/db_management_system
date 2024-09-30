@@ -26,43 +26,45 @@ std::vector<Record> loadRecords(const std::string& filePath) {
     // Read each line from the file
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        Record record;
+        Record record; // Initialize with default values
         
         // Parse the date as a string
         std::string dateString;
-        char slash;
         iss >> dateString;
 
-        // Replace '/' with spaces to easily split date components
-        std::replace(dateString.begin(), dateString.end(), '/', ' ');
-        std::istringstream dateStream(dateString);
+        if (!dateString.empty()) {
+            // Replace '/' with spaces to easily split date components
+            std::replace(dateString.begin(), dateString.end(), '/', ' ');
+            std::istringstream dateStream(dateString);
 
-        // Temporary variables to store day, month, year
-        unsigned int day, month, year;
-        dateStream >> day >> month >> year;
+            // Temporary variables to store day, month, year
+            unsigned int day, month, year;
+            dateStream >> day >> month >> year;
 
-        // Assign parsed values to the bit-field date struct
-        record.date.day = day;
-        record.date.month = month;
-        record.date.year = year % 100;   // Store the last two digits of the year
+            // Assign parsed values to the bit-field date struct
+            record.date.day = day;
+            record.date.month = month;
+            record.date.year = year % 100;  // Store last two digits of the year
+        }
 
-        // Parse the remaining fields
-        iss >> record.TEAM_ID_home >> record.PTS_home 
-            >> record.FG_PCT_home >> record.FT_PCT_home 
-            >> record.FG3_PCT_home >> record.AST_home
-            >> record.REB_home >> record.HOME_TEAM_WINS;
+        // Try parsing each field one by one. If parsing fails, the default value will remain.
+        iss >> record.TEAM_ID_home;
+        iss >> record.PTS_home;
+        iss >> record.FG_PCT_home;
+        iss >> record.FT_PCT_home;
+        iss >> record.FG3_PCT_home;
+        iss >> record.AST_home;
+        iss >> record.REB_home;
+        iss >> record.HOME_TEAM_WINS;
 
-        // Add the record to the list
+        // Add the record to the list even if some fields are missing
         records.push_back(record);
     }
-
-    std::sort(records.begin(), records.end(), [](const Record& a, const Record& b) {
-        return a.FG_PCT_home < b.FG_PCT_home; // Compare FG_PCT_home
-    });
 
     file.close();
     return records;
 }
+
 
 int main() {
     // Step 1: Create Disk_Storage object

@@ -19,7 +19,9 @@ struct Record {
     float FG3_PCT_home;
     unsigned int AST_home;
     unsigned int REB_home;
-    bool HOME_TEAM_WINS;
+    bool HOME_TEAM_WINS; 
+    Record() : TEAM_ID_home(0), PTS_home(0), FG_PCT_home(0.0f), FT_PCT_home(0.0f), 
+               FG3_PCT_home(0.0f), AST_home(0), REB_home(0), HOME_TEAM_WINS(0) {}
 };
 
 #endif
