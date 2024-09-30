@@ -75,7 +75,7 @@ int main() {
 
     // Step 3: Add blocks to Disk_Storage and write records
     for (const auto& record : records) {
-        diskStorage.writeRecord(sizeof(Record)); // Write each record to disk storage
+        diskStorage.writeRecord(sizeof(Record), record); // Write each record to disk storage
     }
 
     // Step 4: Create B+ Tree and bulk insert records
