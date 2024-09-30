@@ -22,7 +22,7 @@ void Block::listRecord()
     cout << "Listing records in the block:" <<endl;
     for (int n=0; n < numrecords ; n++) {
         Record rec = *reinterpret_cast<Record*>(reservedspace + sizeof(int) * 3 + sizeof(unsigned char*) + (n * sizeof(Record)));
-        cout << "Record ID: " << rec.FG_PCT_home << ", TEAM_ID_home: " 
+        cout << "FG_PCT_home: " << rec.FG_PCT_home << ", TEAM_ID_home: " 
         << rec.TEAM_ID_home << ", PTS_Home: " 
         << rec.PTS_home << ", FT_PCT_home: " 
         << rec.FT_PCT_home << ", FG3_PCT_home: " 
@@ -100,6 +100,16 @@ void Disk_Storage::listSpecificBlock(int id) {
     Block* block = it->second;
     cout << "Block Index: " << id << ", Block Pointer: " << block <<",  Number of records: " << block->numrecords <<", Remaining space: " << block->availsize <<endl;
     block->listRecord();
+}
+
+Record Disk_Storage::retrieveRecord(Record_Location recordlocation){
+    if (recordlocation.blocknum > blocksused || recordlocation.blocknum <= 0) throw runtime_error("Invalid block number");
+    if (recordlocation.offset > blocksize || recordlocation.offset < sizeof(int) * 3 + sizeof(unsigned char*)) throw runtime_error("Invalid offset value");
+
+    auto it = blockmap.find(recordlocation.blocknum);
+    Block* block = it->second;
+    Record rec = *reinterpret_cast<Record*>(block->reservedspace + recordlocation.offset);
+    return rec;
 }
 
 Disk_Storage::~Disk_Storage()

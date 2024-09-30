@@ -52,6 +52,7 @@ class Disk_Storage
         Disk_Storage(int recordsize, int maxblock = MAX_BLOCK_ALLOWED, int blocksize = BLOCK_SIZE);
         bool addBlock();
         std::tuple<Record_Location, float> writeRecord(int recordsize, Record record);
+        Record retrieveRecord(Record_Location recordlocation);
         void listBlocks();
         void listSpecificBlock(int id);
         virtual ~Disk_Storage();
