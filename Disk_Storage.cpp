@@ -7,11 +7,13 @@ using namespace std;
 Block::Block(int blocksize):
     blocksize(blocksize), numrecords(0)
 {
+    // reserved space for the records
     int blockheadersize = sizeof(int) * 3 + sizeof(unsigned char*);
     reservedspace = new unsigned char[blocksize - blockheadersize];
     availsize = blocksize - blockheadersize;
 }
 
+// Method to display all records in the block for debugging
 void Block::listRecord() 
 {
     if (numrecords == 0) {
@@ -49,19 +51,20 @@ Disk_Storage::Disk_Storage(int recordsize, int maxblocks, int blocksize):
 
 bool Disk_Storage::addBlock()
 {
-        if (availblocks >= 0) {
-            unsigned char* blocklocation = storageptr + (blocksused * blocksize);
-            blockptr =  new (blocklocation) Block();
-            availblocks -= 1;
-            blocksused += 1;
+    //check if theres enough space for more blocks
+    if (availblocks >= 0) {
+        unsigned char* blocklocation = storageptr + (blocksused * blocksize);
+        blockptr =  new (blocklocation) Block();
+        availblocks -= 1;
+        blocksused += 1;
 
-            blockmap[blocksused] = blockptr;
-            return true;
-        }
-        else {
-            cout << "No available blocks left";
-            return false;
-        }
+        blockmap[blocksused] = blockptr;
+        return true;
+    }
+    else {
+        cout << "No available blocks left";
+        return false;
+    }
 }
 
 tuple<Record_Location, float> Disk_Storage::writeRecord(int recordsize, Record record)
@@ -74,26 +77,31 @@ tuple<Record_Location, float> Disk_Storage::writeRecord(int recordsize, Record r
             throw runtime_error("Unable to reserve space for record");
         }
     }
-    // create a function to add record to block and return record
+    // calc offset from block start to space available for record
     int offset = blocksize - blockptr->availsize;
     unsigned char* recordAddress = blockptr->reservedspace + offset;
+    // create key for finding record for b+ tree
     Record_Location header = {blocksused, offset};
 
+    // write record to block
     memcpy(recordAddress, &record, recordsize);
     blockptr->availsize -= recordsize;
     blockptr->numrecords += 1;
     this->numrecords += 1;
     this->memoryused += recordsize;
 
+    // return key to record
     return make_tuple(header, record.FG_PCT_home);
 }
 
+// Method to display all blocks in the disk for debugging
 void Disk_Storage::listBlocks() {
     for (const auto& pair : blockmap) {
         cout << "Block Index: " << pair.first << ", Block Pointer: " << pair.second <<",  Number of records: " << pair.second->numrecords <<", Remaining space: " << pair.second->availsize <<endl;
     }
 }
 
+// Method to display selected block in the disk for debugging
 void Disk_Storage::listSpecificBlock(int id) {
     if (id > blocksused) throw runtime_error("Block not found");
     auto it = blockmap.find(id);
@@ -102,6 +110,7 @@ void Disk_Storage::listSpecificBlock(int id) {
     block->listRecord();
 }
 
+// Method to retrieve record using the key
 Record Disk_Storage::retrieveRecord(Record_Location recordlocation){
     if (recordlocation.blocknum > blocksused || recordlocation.blocknum <= 0) throw runtime_error("Invalid block number");
     if (recordlocation.offset > blocksize || recordlocation.offset < sizeof(int) * 3 + sizeof(unsigned char*)) throw runtime_error("Invalid offset value");
