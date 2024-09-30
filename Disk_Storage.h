@@ -21,11 +21,10 @@ struct Record_Location
 class Block
 {
     public:
-        unsigned char* reservedspace;
-
         int blocksize;
         int availsize;
         int numrecords;
+        unsigned char reservedspace[4096 - sizeof(int) * 3 - sizeof(unsigned char*)];
         Block(int blocksize = BLOCK_SIZE);
         void listRecord();
         virtual ~Block();
@@ -53,6 +52,7 @@ class Disk_Storage
         bool addBlock();
         std::tuple<Record_Location, float> writeRecord(int recordsize, Record record);
         Record retrieveRecord(Record_Location recordlocation);
+        int linearScan(float start, float end);
         void listBlocks();
         void listSpecificBlock(int id);
         virtual ~Disk_Storage();

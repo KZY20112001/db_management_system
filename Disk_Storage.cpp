@@ -7,9 +7,7 @@ using namespace std;
 Block::Block(int blocksize):
     blocksize(blocksize), numrecords(0)
 {
-    // reserved space for the records
     int blockheadersize = sizeof(int) * 3 + sizeof(unsigned char*);
-    reservedspace = new unsigned char[blocksize - blockheadersize];
     availsize = blocksize - blockheadersize;
 }
 
@@ -23,7 +21,7 @@ void Block::listRecord()
 
     cout << "Listing records in the block:" <<endl;
     for (int n=0; n < numrecords ; n++) {
-        Record rec = *reinterpret_cast<Record*>(reservedspace + sizeof(int) * 3 + sizeof(unsigned char*) + (n * sizeof(Record)));
+        Record rec = *reinterpret_cast<Record*>(reservedspace + (n * sizeof(Record)));
         cout << "FG_PCT_home: " << rec.FG_PCT_home << ", TEAM_ID_home: " 
         << rec.TEAM_ID_home << ", PTS_Home: " 
         << rec.PTS_home << ", FT_PCT_home: " 
@@ -36,10 +34,7 @@ void Block::listRecord()
 
 Block::~Block() 
 {
-    if (reservedspace != nullptr) {
-        delete[] reservedspace;
-        reservedspace = nullptr;
-    }
+
 }
 
 Disk_Storage::Disk_Storage(int recordsize, int maxblocks, int blocksize):
@@ -79,7 +74,7 @@ tuple<Record_Location, float> Disk_Storage::writeRecord(int recordsize, Record r
     }
     // calc offset from block start to space available for record
     int offset = blocksize - blockptr->availsize;
-    unsigned char* recordAddress = blockptr->reservedspace + offset;
+    unsigned char* recordAddress = reinterpret_cast<unsigned char*>(blockptr) + offset;
     // create key for finding record for b+ tree
     Record_Location header = {blocksused, offset};
 
@@ -111,7 +106,7 @@ void Disk_Storage::listSpecificBlock(int id) {
 }
 
 // Method to retrieve record using the key
-Record Disk_Storage::retrieveRecord(Record_Location recordlocation){
+Record Disk_Storage::retrieveRecord(Record_Location recordlocation) {
     if (recordlocation.blocknum > blocksused || recordlocation.blocknum <= 0) throw runtime_error("Invalid block number");
     if (recordlocation.offset > blocksize || recordlocation.offset < sizeof(int) * 3 + sizeof(unsigned char*)) throw runtime_error("Invalid offset value");
 
@@ -119,6 +114,36 @@ Record Disk_Storage::retrieveRecord(Record_Location recordlocation){
     Block* block = it->second;
     Record rec = *reinterpret_cast<Record*>(block->reservedspace + recordlocation.offset);
     return rec;
+}
+
+int Disk_Storage::linearScan(float start, float end) {
+    int iocounter = 0;
+    int recordcounter = 0;
+    for (int n = 1; n <= blocksused; n++){
+        Block* blkptr = blockmap.find(n)->second;
+        iocounter++;
+        for (int r = 0; r < blkptr->numrecords; r++) {
+            Record rec = *reinterpret_cast<Record*>(blkptr->reservedspace + (r * sizeof(Record)));
+            if (start <= rec.FG_PCT_home && rec.FG_PCT_home <= end) {
+                ++recordcounter;
+                if (recordcounter <= 1472) {
+                cout << "Rec: " << recordcounter <<", FG_PCT_home: " << rec.FG_PCT_home << ", TEAM_ID_home: " 
+                << rec.TEAM_ID_home << ", PTS_Home: " 
+                << rec.PTS_home << ", FT_PCT_home: " 
+                << rec.FT_PCT_home << ", FG3_PCT_home: " 
+                << rec.FG3_PCT_home << ", AST_home: " 
+                << rec.AST_home << ", REB_home: " 
+                << rec.REB_home <<endl;}
+            }
+            else if (rec.FG_PCT_home > end) {
+                cout << "Total Records: " << recordcounter <<endl;
+                return iocounter;
+            }
+        }
+
+    }
+    cout << "Total Records: " << recordcounter <<endl;
+    return iocounter;
 }
 
 Disk_Storage::~Disk_Storage()
