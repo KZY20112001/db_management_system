@@ -112,7 +112,7 @@ Record Disk_Storage::retrieveRecord(Record_Location recordlocation) {
 
     auto it = blockmap.find(recordlocation.blocknum);
     Block* block = it->second;
-    Record rec = *reinterpret_cast<Record*>(block->reservedspace + recordlocation.offset);
+    Record rec = *reinterpret_cast<Record*>(reinterpret_cast<unsigned char*>(block) + recordlocation.offset);
     return rec;
 }
 

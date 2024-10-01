@@ -61,6 +61,10 @@ std::vector<Record> loadRecords(const std::string& filePath) {
         records.push_back(record);
     }
 
+    std::sort(records.begin(), records.end(), [](const Record& a, const Record& b) {
+        return a.FG_PCT_home < b.FG_PCT_home; // Compare FG_PCT_home
+    });
+
     file.close();
     return records;
 }
