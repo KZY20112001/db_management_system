@@ -285,6 +285,13 @@ void BPlusTree::bulkInsert(vector<KeyStruct *> dataList){
     if (root)
         return; 
 
+    for (auto cur: dataList)
+        insert(cur); 
+       
+    return; 
+
+
+
     //build leaf level
     Node *cur, *prev = NULL;
     vector<Node*> leafNodes; 
@@ -322,15 +329,17 @@ void BPlusTree::bulkInsert(vector<KeyStruct *> dataList){
 
     //build internal nodes
     vector<Node *> curLevel = leafNodes;
-    int order = MAX + 1; 
+    int order = MAX + 1;
+    KeyStruct *rootKey; 
+
     while (curLevel.size() > 1){
         int numberOfNodes = ceil(curLevel.size() / float(order));
         vector<Node *> parentLevel(numberOfNodes);
 
-        //fill from the back
+        //fill from the back 
         for (int i = numberOfNodes - 1; i >= 0; i--){
             Node *cur = new Node();
-
+            cur->isLeaf = false; 
             vector<Node *> children; //children for current parent node
             int j = 0;
             while (!curLevel.empty() and j < order){
@@ -351,6 +360,6 @@ void BPlusTree::bulkInsert(vector<KeyStruct *> dataList){
         curLevel = parentLevel; 
     }
 
-    root = new Node(); 
-
+    root = curLevel[0]; //final remaining node
+    return; 
 }
