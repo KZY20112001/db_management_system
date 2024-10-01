@@ -126,14 +126,13 @@ int Disk_Storage::linearScan(float start, float end) {
             Record rec = *reinterpret_cast<Record*>(blkptr->reservedspace + (r * sizeof(Record)));
             if (start <= rec.FG_PCT_home && rec.FG_PCT_home <= end) {
                 ++recordcounter;
-                if (recordcounter <= 1472) {
                 cout << "Rec: " << recordcounter <<", FG_PCT_home: " << rec.FG_PCT_home << ", TEAM_ID_home: " 
                 << rec.TEAM_ID_home << ", PTS_Home: " 
                 << rec.PTS_home << ", FT_PCT_home: " 
                 << rec.FT_PCT_home << ", FG3_PCT_home: " 
                 << rec.FG3_PCT_home << ", AST_home: " 
                 << rec.AST_home << ", REB_home: " 
-                << rec.REB_home <<endl;}
+                << rec.REB_home <<endl;
             }
             else if (rec.FG_PCT_home > end) {
                 cout << "Total Records: " << recordcounter <<endl;
