@@ -5,8 +5,8 @@
 
 using std::cout;
 using std::endl;
-using std::sort; 
-
+using std::sort;
+using std::reverse; 
 int MAX = 256; 
 
 
@@ -281,27 +281,18 @@ void BPlusTree::insert(KeyStruct* data) {
 
 
 //only use bulkInsert on empty tree i.e. root = null 
-void BPlusTree::bulkInsert(vector<KeyStruct *> dataList, bool sorted){
+void BPlusTree::bulkInsert(vector<KeyStruct *> dataList){
     if (root)
         return; 
-    for (auto k: dataList){
-        insert(k);
-        return; 
-    }
-
-    if (!sorted){
-        sort(dataList.begin(), dataList.end(), compareData); 
-    }
-    int i = 0;
-
 
     //build leaf level
     Node *cur, *prev = NULL;
     vector<Node*> leafNodes; 
+    int i = 0;
     while (i < dataList.size()){
         cur = new Node();
         for (int j = 0; j < MAX and i < dataList.size(); i++,j++){
-            cur->key[i] = dataList[i];
+            cur->key[j] = dataList[i];
             cur->size++; 
         }
 
@@ -309,18 +300,57 @@ void BPlusTree::bulkInsert(vector<KeyStruct *> dataList, bool sorted){
             prev->ptr[prev->size] = cur;
         leafNodes.push_back(cur); 
         prev = cur;    
-    } 
-
-    //build internal nodes
-    vector<Node *> curLevel = leafNodes; 
-    while (curLevel.size() > 1){
-        vector<Node *> parentLevel; 
-        Node *parentNode = new Node();
-
     }
 
-}
+    //check if last leaf node have min number of Keys (if not redistribute the key from perv last key)
+    int MIN = (MAX + 1) / 2;
+    if (!leafNodes.empty() && leafNodes.back()->size < MIN){
+        Node *lastNode = leafNodes.back();
+        Node *secondLastNode = leafNodes[leafNodes.size() - 2];
+    
+        int requiredKeys = MIN - lastNode->size;
 
-bool compareData(KeyStruct* d1, KeyStruct* d2) {
-    return d1->value < d2->value;
+        for (int i = 0; i < requiredKeys; i++){
+            //move the last key of secondLastNode and insert it as the first key of last node
+            lastNode->key.insert(lastNode->key.begin(), secondLastNode->key[secondLastNode->size - 1]);
+            secondLastNode->key.pop_back();
+
+            secondLastNode->size--;
+            lastNode->size++; 
+        }
+    }
+
+    //build internal nodes
+    vector<Node *> curLevel = leafNodes;
+    int order = MAX + 1; 
+    while (curLevel.size() > 1){
+        int numberOfNodes = ceil(curLevel.size() / float(order));
+        vector<Node *> parentLevel(numberOfNodes);
+
+        //fill from the back
+        for (int i = numberOfNodes - 1; i >= 0; i--){
+            Node *cur = new Node();
+
+            vector<Node *> children; //children for current parent node
+            int j = 0;
+            while (!curLevel.empty() and j < order){
+                Node *n = curLevel.back();
+                curLevel.pop_back();
+                children.push_back(n); 
+                j++;
+            }
+            reverse(children.begin(), children.end());
+
+            for (int j = 1, keyIndex = 0; j < children.size(); j++, keyIndex++){
+                cur->key[keyIndex] = children[j]->key[0];
+                cur->ptr[keyIndex] = children[j - 1];  
+            }
+            cur->ptr[order] = children[children.size() - 1]; 
+            parentLevel[i] = cur; 
+        }
+        curLevel = parentLevel; 
+    }
+
+    root = new Node(); 
+
 }
