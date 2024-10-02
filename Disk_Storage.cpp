@@ -116,33 +116,36 @@ Record Disk_Storage::retrieveRecord(Record_Location recordlocation) {
     return rec;
 }
 
-int Disk_Storage::linearScan(float start, float end) {
+tuple<int, float> Disk_Storage::linearScan(float start, float end) {
     int iocounter = 0;
     int recordcounter = 0;
-    for (int n = 1; n <= blocksused; n++){
+    float sumFG3_PCT_home = 0.0;
+
+    for (int n = 1; n <= blocksused; n++) {
         Block* blkptr = blockmap.find(n)->second;
         iocounter++;
         for (int r = 0; r < blkptr->numrecords; r++) {
             Record rec = *reinterpret_cast<Record*>(blkptr->reservedspace + (r * sizeof(Record)));
             if (start <= rec.FG_PCT_home && rec.FG_PCT_home <= end) {
                 ++recordcounter;
-                cout << "Rec: " << recordcounter <<", FG_PCT_home: " << rec.FG_PCT_home << ", TEAM_ID_home: " 
-                << rec.TEAM_ID_home << ", PTS_Home: " 
-                << rec.PTS_home << ", FT_PCT_home: " 
-                << rec.FT_PCT_home << ", FG3_PCT_home: " 
-                << rec.FG3_PCT_home << ", AST_home: " 
-                << rec.AST_home << ", REB_home: " 
-                << rec.REB_home <<endl;
+                sumFG3_PCT_home += rec.FG3_PCT_home; // Accumulate FG3_PCT_home
+                cout << "Rec: " << recordcounter << ", FG_PCT_home: " << rec.FG_PCT_home 
+                     << ", TEAM_ID_home: " << rec.TEAM_ID_home << ", PTS_Home: " 
+                     << rec.PTS_home << ", FT_PCT_home: " << rec.FT_PCT_home 
+                     << ", FG3_PCT_home: " << rec.FG3_PCT_home << ", AST_home: " 
+                     << rec.AST_home << ", REB_home: " << rec.REB_home << endl;
             }
             else if (rec.FG_PCT_home > end) {
-                cout << "Total Records: " << recordcounter <<endl;
-                return iocounter;
+                cout << "Total Records: " << recordcounter << endl;
+                float averageFG3_PCT_home = recordcounter > 0 ? sumFG3_PCT_home / recordcounter : 0.0f;
+                return make_tuple(iocounter, averageFG3_PCT_home); // Return IO count and average
             }
         }
-
     }
-    cout << "Total Records: " << recordcounter <<endl;
-    return iocounter;
+
+    float averageFG3_PCT_home = recordcounter > 0 ? sumFG3_PCT_home / recordcounter : 0.0f;
+    cout << "Total Records: " << recordcounter << endl;
+    return make_tuple(iocounter, averageFG3_PCT_home); // Return IO count and average
 }
 
 Disk_Storage::~Disk_Storage()
