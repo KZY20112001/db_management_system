@@ -46,6 +46,14 @@ int main(){
 
     //search error key
     KeyStruct res = tree.search(0);
-    cout << "Not Found for 0: " << res.value << endl; 
+    cout << "Not Found for 0: " << res.value << endl;
+
+    //interval search key
+    int dummy = 0; 
+    vector<KeyStruct> r = tree.searchInterval(10, 40, dummy); 
+    cout << "Number of Keystruct: " << r.size() << endl; //should return 4 Keystructs (10,20,30,40)
+
+    int h = tree.getHeight();
+    cout << "Height: " << h << endl; 
     return 0; 
 }   

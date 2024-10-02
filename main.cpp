@@ -67,14 +67,9 @@ void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlu
         KeyStruct keyStruct = {key, {recordLocation}}; // Store location in a vector
 
         // Check if the key already exists in the B+ Tree
-        if (bPlusTree.search(key)) {
-            // If key exists, retrieve the KeyStruct and add the new address
-            KeyStruct* existingKeyStruct = bPlusTree.search(key);
-            existingKeyStruct->addresses.push_back(recordLocation);
-        } else {
-            // If key does not exist, insert the new KeyStruct
-            bPlusTree.insert(&keyStruct);
-        }
+        // If key does not exist, insert the new KeyStruct
+        bPlusTree.insert(keyStruct);
+        
     }
 
     file.close();
@@ -94,8 +89,8 @@ int main() {
     // Step 5: Report statistics about the B+ Tree
     int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree
     int numNodes = 2;     //placeholder                // Get the number of nodes
-    int numLevels = 2;    //placeholder                // Get the number of levels
     Node* rootKeys = bPlusTree.getRoot(); // Get keys in the root node
+    int numLevels = bPlusTree.getHeight(); // Get the number of levels
 
     // Print B+ Tree statistics
     cout << "B+ Tree Statistics:" << endl;
@@ -105,7 +100,7 @@ int main() {
     cout << "Root Keys: ";
 
     for (int i = 0; i < rootKeys->size; i++){
-        cout << rootKeys->key[i]->value << " "; 
+        cout << rootKeys->key[i].value << " "; 
     }
      
     cout << endl;
@@ -117,11 +112,11 @@ int main() {
     float upperBound = 0.8; 
     int numNodesAccessed = 0;
     auto startBPlus = std::chrono::high_resolution_clock::now();
-    vector<KeyStruct*> bPlusResults = bPlusTree.searchInterval(lowerBound, upperBound, numNodesAccessed);
+    vector<KeyStruct> bPlusResults = bPlusTree.searchInterval(lowerBound, upperBound, numNodesAccessed);
     auto endBPlus = std::chrono::high_resolution_clock::now();
     float sumBPlusFG3_PCT_home = 0;
     for (const auto& keyStruct : bPlusResults) {
-        for (const auto& recordLocation : keyStruct->addresses) {
+        for (const auto& recordLocation : keyStruct.addresses) {
             Record record = diskStorage.retrieveRecord(recordLocation);
             sumBPlusFG3_PCT_home += record.FG3_PCT_home;
         }
