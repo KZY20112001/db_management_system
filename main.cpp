@@ -96,9 +96,6 @@ int main() {
 
     // Step 4: Create B+ Tree and bulk insert records
     BPlusTree bPlusTree; // Create B+ Tree object
-    for (const auto& record : records) {
-        bPlusTree.insert(record.FG_PCT_home, record); // Insert into B+ Tree using FG_PCT_home as key
-    }
 
     // Step 5: Report statistics about the B+ Tree
     int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree

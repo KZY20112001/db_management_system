@@ -2,17 +2,23 @@
 #include <algorithm> 
 #include <iostream> 
 #include <cmath> 
+#include <queue> 
 
 using std::cout;
 using std::endl;
 using std::sort;
 using std::reverse; 
-int MAX = 256; 
+int MAX = 2; 
+
+
 
 
 Node::Node() {
-    key.resize(MAX);  // Resizes the vector to hold 'MAX' elements
-    ptr.resize(MAX + 1);  // Resizing to hold MAX + 1 child pointers
+    key = new KeyStruct[MAX]; 
+    ptr = new Node*[MAX + 1]; 
+
+    //key.resize(MAX);  // Resizes the vector to hold 'MAX' elements
+    //ptr.resize(MAX + 1);  // Resizing to hold MAX + 1 child pointers
     size = 0;
     isLeaf = true;
 }
@@ -29,7 +35,7 @@ Node* BPlusTree::getLeafNode(float value) {
         
     while (!cur->isLeaf){
         for (int i = 0; i < cur->size; i++){
-            if (value < cur->key[i]->value){
+            if (value < cur->key[i].value){
                 cur = cur->ptr[i];
                 break; 
             }
@@ -64,11 +70,11 @@ Node* BPlusTree::findParent(Node* cur, Node* child) {
 
 
 
-void BPlusTree::insertInternalNode(KeyStruct* data, Node* parent, Node* child) {
+void BPlusTree::insertInternalNode(KeyStruct data, Node* parent, Node* child) {
    //parent is not full we will just insert the new key 
     if (parent->size < MAX){
         int i = 0; 
-        while (data->value > parent->key[i]->value and i < parent->size)
+        while (data.value > parent->key[i].value and i < parent->size)
             i++;
 
         //make space for new key 
@@ -87,7 +93,7 @@ void BPlusTree::insertInternalNode(KeyStruct* data, Node* parent, Node* child) {
     }
 
     //parent is full so we split the parent node
-    vector<KeyStruct *> tempKeyStruct(MAX+1);
+    vector<KeyStruct> tempKeyStruct(MAX+1);
     vector<Node *> tempPointers(MAX + 2);
     for (int i = 0; i < MAX; i++)
         tempKeyStruct[i] = parent->key[i];
@@ -96,7 +102,7 @@ void BPlusTree::insertInternalNode(KeyStruct* data, Node* parent, Node* child) {
         tempPointers[i] = parent->ptr[i];
     
     int i = 0; 
-    while (data->value > tempKeyStruct[i]->value and i < MAX)
+    while (data.value > tempKeyStruct[i].value and i < MAX)
         i++; 
         
     //make space for new key
@@ -114,15 +120,14 @@ void BPlusTree::insertInternalNode(KeyStruct* data, Node* parent, Node* child) {
     newInternal->isLeaf = false;
 
     //smallest value from second node will be extracted at lifted as new root node
-    KeyStruct *newRootKey = tempKeyStruct[parent->size];
+    KeyStruct newRootKey = tempKeyStruct[parent->size];
     
     parent->size = ceil(MAX / 2.00);
     newInternal->size = floor(MAX / 2.00);
 
     
     
-    parent->key.clear();
-    parent->ptr.clear(); 
+
     //insert keys and pointers back to parent and newInternal node
     for (i = 0; i < parent->size; i++)
         parent->key[i] = tempKeyStruct[i];
@@ -155,28 +160,29 @@ Node * BPlusTree::getRoot(){
     return root; 
 }
 
-KeyStruct* BPlusTree::search(float value) {
+KeyStruct BPlusTree::search(float value) {
     Node *leafNode = getLeafNode(value); 
     //search in leaf node
-    for (auto data: leafNode->key){ 
-        if (value == data->value) 
-            return data; 
+    for (int i = 0; i < leafNode->size; i++){
+        if (value == leafNode->key[i].value) 
+            return leafNode->key[i];
     }
 }
 
 
-vector<KeyStruct*> BPlusTree::searchInterval(float lowerBound, float upperBound, int &numNodesAccessed) {
-    vector<KeyStruct *> res;
+vector<KeyStruct> BPlusTree::searchInterval(float lowerBound, float upperBound, int &numNodesAccessed) {
+    vector<KeyStruct> res;
     Node *leafNode = getLeafNode(lowerBound); 
     numNodesAccessed++;
     
     while (leafNode){
-        for (auto data: leafNode->key){
-            if (data->value >= lowerBound and data->value <= upperBound)
-                res.push_back(data); 
+            for (int i = 0; i < leafNode->size; i++){
+                auto data = leafNode->key[i]; 
+                if (data.value >= lowerBound and data.value <= upperBound)
+                    res.push_back(data);
 
-            if (data->value > upperBound)
-                return res; 
+                if (data.value > upperBound)
+                    return res; 
         }
         leafNode = leafNode->ptr[leafNode->size]; 
     }
@@ -186,28 +192,33 @@ vector<KeyStruct*> BPlusTree::searchInterval(float lowerBound, float upperBound,
 }
 
 
-void BPlusTree::insert(KeyStruct* data) {
+void BPlusTree::insert(KeyStruct data) {
     //empty tree
     if (!root){
+        cout << "Tree is empty. Creating a root... " << endl; 
         root = new Node();
         root->size++;
-        root->key.push_back(data); 
+        root->key[0] = data;
+        cout << "ROOT: "<< root->key[0].value << endl; 
         return; 
     }
 
 
     //get the correct leafnode 
-    Node *leafNode = getLeafNode(data->value);
+    Node *leafNode = getLeafNode(data.value);
+    
     if (!leafNode){
-        cout << "Error in inserting new data: " << data->value << endl; 
+        cout << "Error in inserting new data: " << data.value << endl; 
         return; 
     }
-    
-
-    for (auto &d: leafNode->key){
+    cout<<"Leaf Node is found"<<endl;
+    cout << leafNode->key[0].value << endl;
+    for (int i = 0; i < leafNode->size; i++){
         //check if key with same value already exists
-        if (d->value == data->value){
-            d->addresses.push_back(data->addresses[0]);
+        if (leafNode->key[i].value == data.value){
+            vector<Record_Location> cur = leafNode->key[i].addresses;
+            cur.push_back(data.addresses[0]);
+            leafNode->key[i] = {data.value, cur}; 
             return; 
         }
     }
@@ -216,7 +227,7 @@ void BPlusTree::insert(KeyStruct* data) {
     //leafNode is not full yet
     if (leafNode->size < MAX){
         int i = 0; 
-        while (data->value > leafNode->key[i]->value and i < leafNode->size) 
+        while (data.value > leafNode->key[i].value and i < leafNode->size) 
             i++;
 
         //make space for insertion
@@ -231,13 +242,12 @@ void BPlusTree::insert(KeyStruct* data) {
         //leafNode is full make a new node
         Node *newLeaf = new Node();
 
-        vector<KeyStruct *> tempKeyStruct(MAX+1);
-        int i = 0; 
-        for (auto key: leafNode->key)
-            tempKeyStruct[i++] = key;
+        vector<KeyStruct> tempKeyStruct(MAX+1);
+        for (int i = 0; i < leafNode->size; i++)
+            tempKeyStruct[i] = leafNode->key[i];
         
-        i = 0; 
-        while(data->value > tempKeyStruct[i]->value and i < MAX)
+        int i = 0; 
+        while(data.value > tempKeyStruct[i].value and i < MAX)
             i++;
         for (int j = MAX; j > i; j--)
             tempKeyStruct[j] = tempKeyStruct[j - 1]; 
@@ -251,7 +261,7 @@ void BPlusTree::insert(KeyStruct* data) {
         leafNode->ptr[leafNode->size] = newLeaf;
         newLeaf->ptr[newLeaf->size] = leafNode->ptr[MAX];
 
-        leafNode->key.clear();
+
         for (int i = 0; i < leafNode->size; i++)
             leafNode->key[i] = tempKeyStruct[i];
 
@@ -282,7 +292,7 @@ void BPlusTree::insert(KeyStruct* data) {
 
 
 //only use bulkInsert on empty tree i.e. root = null 
-void BPlusTree::bulkInsert(vector<KeyStruct *> dataList){
+void BPlusTree::bulkInsert(vector<KeyStruct> dataList){
     if (root)
         return; 
 
@@ -362,4 +372,50 @@ void BPlusTree::bulkInsert(vector<KeyStruct *> dataList){
 
     // root = curLevel[0]; //final remaining node
     // return; 
+}
+
+
+int getHeightUtil(Node *cur){ 
+    if (!cur->isLeaf)
+        return 1 + getHeightUtil(cur->ptr[0]);
+    return 1; 
+}
+
+int BPlusTree::getHeight(){
+    return getHeightUtil(root);
+}
+
+void BPlusTree::displayAllKeys(){ 
+    if (!root){
+        cout << "B+ tree is currently empty." << endl;
+        return; 
+    }
+
+    std::queue<Node *> q;
+    q.push(root);
+
+    int level = 1; 
+    while (!q.empty()){
+        cout << "Level " << level << " : "; 
+        int size = q.size();
+        for (int i = 0; i < size; i++){ 
+            Node *cur = q.front();
+            q.pop();
+
+            //print nodes of current keys
+            cout << "["; 
+            for (int i = 0; i < cur->size; i++) 
+                cout << cur->key[i].value << " ";
+            cout << "] "; 
+
+            if (cur->isLeaf)
+                continue;
+            
+            //enqueue child nodes if cur node is internal node
+            for (int i = 0; i < cur->size + 1; i++)
+                q.push(cur->ptr[i]);
+        }
+        level++; 
+        cout << endl;
+    }
 }
