@@ -9,14 +9,24 @@
 #include <chrono>
 #include <algorithm>
 
+
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
+const int MAX = 256; 
+
+
+
 // Function to load records from txt file
-std::vector<Record> loadRecords(const std::string& filePath) {
-    std::vector<Record> records;
+vector<Record> loadRecords(const string& filePath) {
+    vector<Record> records;
+    string line;
     std::ifstream file(filePath);
-    std::string line;
 
     if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
+        std::cerr << "Error opening file: " << filePath << endl;
         return records;
     }
 
@@ -29,7 +39,7 @@ std::vector<Record> loadRecords(const std::string& filePath) {
         Record record; // Initialize with default values
         
         // Parse the date as a string
-        std::string dateString;
+        string dateString;
         iss >> dateString;
 
         if (!dateString.empty()) {
@@ -73,11 +83,11 @@ std::vector<Record> loadRecords(const std::string& filePath) {
 int main() {
     // Step 1: Create Disk_Storage object
     Disk_Storage diskStorage(sizeof(Record), 144, BLOCK_SIZE); // Initialize disk storage
-    std::string filePath = "D:\\Users Folder\\Documents\\GitHub\\db_management_system\\data\\games.txt"; // Full file path
+    string filePath = "D:\\Users Folder\\Documents\\GitHub\\db_management_system\\data\\games.txt"; // Full file path
 
     // Step 2: Load records from file into a vector
-    std::vector<Record> records = loadRecords(filePath); // Load records
-    std::cout << "Loaded " << records.size() << " records from the file.\n";
+    vector<Record> records = loadRecords(filePath); // Load records
+    cout << "Loaded " << records.size() << " records from the file.\n";
 
     // Step 3: Add blocks to Disk_Storage and write records
     for (const auto& record : records) {
@@ -87,25 +97,27 @@ int main() {
     // Step 4: Create B+ Tree and bulk insert records
     BPlusTree bPlusTree; // Create B+ Tree object
     for (const auto& record : records) {
-        bPlusTree.bulkInsert(record.FG_PCT_home, record); // Insert into B+ Tree using FG_PCT_home as key
+        bPlusTree.insert(record.FG_PCT_home, record); // Insert into B+ Tree using FG_PCT_home as key
     }
 
     // Step 5: Report statistics about the B+ Tree
-    int n  =  // Get the max number of keys in the B+ Tree
-    int numNodes =  // Get the number of nodes
-    int numLevels =  // Get the number of levels
-    auto rootKeys = bPlusTree.getRoot(); // Get keys in the root node
+    int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree
+    int numNodes = 2;     //placeholder                // Get the number of nodes
+    int numLevels = 2;    //placeholder                // Get the number of levels
+    Node* rootKeys = bPlusTree.getRoot(); // Get keys in the root node
 
     // Print B+ Tree statistics
-    std::cout << "B+ Tree Statistics:" << std::endl;
-    std::cout << "N (number of keys): " << n << std::endl;
-    std::cout << "Number of Nodes: " << numNodes << std::endl;
-    std::cout << "Number of Levels: " << numLevels << std::endl;
-    std::cout << "Root Keys: ";
-    for (const auto& key : rootKeys) {
-        std::cout << key << " "; // Print each key in the root node
+    cout << "B+ Tree Statistics:" << endl;
+    cout << "N (number of keys): " << n << endl;
+    cout << "Number of Nodes: " << numNodes << endl;
+    cout << "Number of Levels: " << numLevels << endl;
+    cout << "Root Keys: ";
+
+    for (int i = 0; i < rootKeys->size; i++){
+        cout << rootKeys->key[i]->value << " "; 
     }
-    std::cout << std::endl;
+     
+    cout << endl;
 
 
     // Task 3: B+ Tree vs Linear Scan
@@ -128,7 +140,7 @@ int main() {
     
     // Perform linear scan on records vector
     auto startLinear = std::chrono::high_resolution_clock::now();
-    std::vector<Record> linearResults; // Vector to hold results from linear scan
+    vector<Record> linearResults; // Vector to hold results from linear scan
     for (const auto& record : records) {
         if (record.FG_PCT_home >= lowerBound && record.FG_PCT_home <= upperBound) {
             linearResults.push_back(record); // Add to results if within range
@@ -144,15 +156,15 @@ int main() {
     auto endLinear = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsedLinear = endLinear - startLinear;
 
-    std::cout << "B+ Tree Statistics:" << std::endl;
-    std::cout << "Index Nodes Accessed: " << numNodesAccessed << std::endl;
-    std::cout << "Average FG3_PCT_home (B+ Tree): " << average << std::endl;
-    std::cout << "Elapsed time for B Plus Tree: " << elapsedBPlus.count() << " seconds" << std::endl;
+    cout << "B+ Tree Statistics:" << endl;
+    cout << "Index Nodes Accessed: " << numNodesAccessed << endl;
+    cout << "Average FG3_PCT_home (B+ Tree): " << average << endl;
+    cout << "Elapsed time for B Plus Tree: " << elapsedBPlus.count() << " seconds" << endl;
 
-    std::cout << "Linear Scan Statistics:" << std::endl;
-    std::cout << "Data Blocks Accessed: " << countLinear << std::endl;
-    std::cout << "Average FG3_PCT_home (Linear Scan): " << averageLinear << std::endl;
-    std::cout << "Elapsed time for Linear Scan: " << elapsedLinear.count() << " seconds" << std::endl;
+    cout << "Linear Scan Statistics:" << endl;
+    cout << "Data Blocks Accessed: " << countLinear << endl;
+    cout << "Average FG3_PCT_home (Linear Scan): " << averageLinear << endl;
+    cout << "Elapsed time for Linear Scan: " << elapsedLinear.count() << " seconds" << endl;
 
     return 0; // Exit the program
 }

@@ -1,6 +1,7 @@
 #ifndef B_PLUS_TREE_H
 #define B_PLUS_TREE_H
 
+#include <Disk_Storage.h>
 #include <vector>
 using std::vector; 
 
@@ -9,10 +10,7 @@ using std::vector;
 class KeyStruct {
 public:
     float value; // The value of the key
-
-    //vector<void*> stores the addresses of one relevant record
-    //vector<vector<void*>> stores the addresses of multiple records having the same key
-    vector<vector<void *>> addresses; 
+    vector<Record_Location> addresses; //store in a vector in case there are duplicate record locations
 };
 
 
