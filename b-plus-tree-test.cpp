@@ -11,7 +11,7 @@ using std::endl;
 int main(){
 
     //vector<int> values = {3, 4, 6, 9, 10, 11,12,13,20,22};
-    //vector<int> values = {1, 4, 7, 10, 17, 21,31,25,19,20};
+    //vector<int> values = {1, 4, 7, 10, 17, 21,31,25,19,20, 28, 42};
     vector<int> values = {10,20,30, 40,50,60, 70,80,90,100, 30,60, 10,10,10,10,10,20,20,20}; 
     vector<KeyStruct> keys;
 
