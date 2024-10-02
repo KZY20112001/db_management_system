@@ -168,6 +168,7 @@ KeyStruct* BPlusTree::search(float value) {
 vector<KeyStruct*> BPlusTree::searchInterval(float lowerBound, float upperBound) {
     vector<KeyStruct *> res;
     Node *leafNode = getLeafNode(lowerBound); 
+    numNodesAccessed++;
     
     while (leafNode){
         for (auto data: leafNode->key){
