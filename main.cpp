@@ -9,7 +9,6 @@
 #include <chrono>
 #include <algorithm>
 
-
 using std::cout;
 using std::endl;
 using std::string;
@@ -17,17 +16,14 @@ using std::vector;
 
 const int MAX = 256; 
 
-
-
-// Function to load records from txt file
-vector<Record> loadRecords(const string& filePath) {
-    vector<Record> records;
+// Function to load records and write them directly to Disk_Storage
+void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlusTree& bPlusTree) {
     string line;
     std::ifstream file(filePath);
 
     if (!file.is_open()) {
         std::cerr << "Error opening file: " << filePath << endl;
-        return records;
+        return;
     }
 
     // Skip the header line
@@ -43,15 +39,12 @@ vector<Record> loadRecords(const string& filePath) {
         iss >> dateString;
 
         if (!dateString.empty()) {
-            // Replace '/' with spaces to easily split date components
             std::replace(dateString.begin(), dateString.end(), '/', ' ');
             std::istringstream dateStream(dateString);
 
-            // Temporary variables to store day, month, year
             unsigned int day, month, year;
             dateStream >> day >> month >> year;
 
-            // Assign parsed values to the bit-field date struct
             record.date.day = day;
             record.date.month = month;
             record.date.year = year % 100;  // Store last two digits of the year
@@ -67,38 +60,36 @@ vector<Record> loadRecords(const string& filePath) {
         iss >> record.REB_home;
         iss >> record.HOME_TEAM_WINS;
 
-        // Add the record to the list even if some fields are missing
-        records.push_back(record);
+        // Write the record to Disk_Storage and get the location and key
+        auto [recordLocation, key] = diskStorage.writeRecord(sizeof(Record), record);
+        
+        // Create KeyStruct
+        KeyStruct keyStruct = {key, {recordLocation}}; // Store location in a vector
+
+        // Check if the key already exists in the B+ Tree
+        if (bPlusTree.search(key)) {
+            // If key exists, retrieve the KeyStruct and add the new address
+            KeyStruct* existingKeyStruct = bPlusTree.search(key);
+            existingKeyStruct->addresses.push_back(recordLocation);
+        } else {
+            // If key does not exist, insert the new KeyStruct
+            bPlusTree.insert(&keyStruct);
+        }
     }
 
-    std::sort(records.begin(), records.end(), [](const Record& a, const Record& b) {
-        return a.FG_PCT_home < b.FG_PCT_home; // Compare FG_PCT_home
-    });
-
     file.close();
-    return records;
 }
-
 
 int main() {
     // Step 1: Create Disk_Storage object
     Disk_Storage diskStorage(sizeof(Record), 144, BLOCK_SIZE); // Initialize disk storage
     string filePath = "D:\\Users Folder\\Documents\\GitHub\\db_management_system\\data\\games.txt"; // Full file path
 
-    // Step 2: Load records from file into a vector
-    vector<Record> records = loadRecords(filePath); // Load records
-    cout << "Loaded " << records.size() << " records from the file.\n";
-
-    // Step 3: Add blocks to Disk_Storage and write records
-    for (const auto& record : records) {
-        diskStorage.writeRecord(sizeof(Record), record); // Write each record to disk storage
-    }
-
-    // Step 4: Create B+ Tree and bulk insert records
+    // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
     BPlusTree bPlusTree; // Create B+ Tree object
-    for (const auto& record : records) {
-        bPlusTree.insert(record.FG_PCT_home, record); // Insert into B+ Tree using FG_PCT_home as key
-    }
+    loadAndStoreRecords(filePath, diskStorage, bPlusTree); // Load records and write to disk storage
+
+    cout << "Loaded records and written to disk storage.\n";
 
     // Step 5: Report statistics about the B+ Tree
     int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree
@@ -119,52 +110,42 @@ int main() {
      
     cout << endl;
 
-
-    // Task 3: B+ Tree vs Linear Scan
+    // Task 3: B+ Tree vs Disk Storage Linear Scan
+    
     // Perform range query on B+ Tree
-    auto startBPlus = std::chrono::high_resolution_clock::now();
     float lowerBound = 0.5;
     float upperBound = 0.8; 
     int numNodesAccessed = 0;
-    auto rangeResults = bPlusTree.searchInterval(lowerBound, upperBound, numNodesAccessed);
-    int sum = 0;
-    int count = 0;
-    for (const auto& record : rangeResults) {
-        sum += record->value;
-        count++;
-    }
-    float average = sum / count;
+    auto startBPlus = std::chrono::high_resolution_clock::now();
+    vector<KeyStruct*> bPlusResults = bPlusTree.searchInterval(lowerBound, upperBound, numNodesAccessed);
     auto endBPlus = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsedBPlus = endBPlus - startBPlus;
-
-    
-    // Perform linear scan on records vector
-    auto startLinear = std::chrono::high_resolution_clock::now();
-    vector<Record> linearResults; // Vector to hold results from linear scan
-    for (const auto& record : records) {
-        if (record.FG_PCT_home >= lowerBound && record.FG_PCT_home <= upperBound) {
-            linearResults.push_back(record); // Add to results if within range
+    float sumBPlusFG3_PCT_home = 0;
+    for (const auto& keyStruct : bPlusResults) {
+        for (const auto& recordLocation : keyStruct->addresses) {
+            Record record = diskStorage.retrieveRecord(recordLocation);
+            sumBPlusFG3_PCT_home += record.FG3_PCT_home;
         }
     }
-    int sumLinear = 0;
-    int countLinear = 0;
-    for (const auto& record : linearResults) {
-        sum += record.FG_PCT_home;
-        count++;
-    }
-    float averageLinear = sum / count;
-    auto endLinear = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsedLinear = endLinear - startLinear;
+    float averageBPlusFG3_PCT_home = bPlusResults.size() > 0 ? sumBPlusFG3_PCT_home / bPlusResults.size() : 0.0f;
+    std::chrono::duration<double> elapsedBPlus = endBPlus - startBPlus;
 
     cout << "B+ Tree Statistics:" << endl;
     cout << "Index Nodes Accessed: " << numNodesAccessed << endl;
-    cout << "Average FG3_PCT_home (B+ Tree): " << average << endl;
+    cout << "Average FG3_PCT_home (B+ Tree): " << averageBPlusFG3_PCT_home << endl;
     cout << "Elapsed time for B Plus Tree: " << elapsedBPlus.count() << " seconds" << endl;
 
+    // Perform linear scan on Disk_Storage
+    auto startLinear = std::chrono::high_resolution_clock::now();
+    auto [linearIOCount, averageLinearFG3_PCT_home] = diskStorage.linearScan(lowerBound, upperBound);
+    auto endLinear = std::chrono::high_resolution_clock::now();
+    
+    std::chrono::duration<double> elapsedLinear = endLinear - startLinear;
+
     cout << "Linear Scan Statistics:" << endl;
-    cout << "Data Blocks Accessed: " << countLinear << endl;
-    cout << "Average FG3_PCT_home (Linear Scan): " << averageLinear << endl;
+    cout << "Data Blocks Accessed: " << linearIOCount << endl;
+    cout << "Average FG3_PCT_home (Linear Scan): " << averageLinearFG3_PCT_home << endl;
     cout << "Elapsed time for Linear Scan: " << elapsedLinear.count() << " seconds" << endl;
+
 
     return 0; // Exit the program
 }

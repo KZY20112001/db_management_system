@@ -52,7 +52,7 @@ class Disk_Storage
         bool addBlock();
         std::tuple<Record_Location, float> writeRecord(int recordsize, Record record);
         Record retrieveRecord(Record_Location recordlocation);
-        int linearScan(float start, float end);
+        std::tuple<int, float> linearScan(float start, float end);
         void listBlocks();
         void listSpecificBlock(int id);
         virtual ~Disk_Storage();
