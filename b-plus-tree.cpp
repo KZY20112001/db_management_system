@@ -179,6 +179,7 @@ vector<KeyStruct*> BPlusTree::searchInterval(float lowerBound, float upperBound,
                 return res; 
         }
         leafNode = leafNode->ptr[leafNode->size]; 
+        numNodesAccessed++;
     }
     
     return res; 
