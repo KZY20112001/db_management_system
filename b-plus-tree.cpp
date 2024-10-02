@@ -8,7 +8,7 @@ using std::cout;
 using std::endl;
 using std::sort;
 using std::reverse; 
-int MAX = 2; 
+int MAX = 3; 
 
 
 
@@ -34,7 +34,8 @@ Node* BPlusTree::getLeafNode(float value) {
     Node *cur = root; 
         
     while (!cur->isLeaf){
-        for (int i = 0; i < cur->size; i++){
+        int size = cur->size; 
+        for (int i = 0; i < size; i++){
             if (value < cur->key[i].value){
                 cur = cur->ptr[i];
                 break; 
@@ -44,7 +45,6 @@ Node* BPlusTree::getLeafNode(float value) {
                 cur = cur->ptr[i + 1]; 
         }
     }
-
     return cur; 
 
 }
@@ -52,7 +52,7 @@ Node* BPlusTree::getLeafNode(float value) {
 
 
 Node* BPlusTree::findParent(Node* cur, Node* child) {
-      if (cur->isLeaf or cur->ptr[0]->isLeaf)
+      if (cur->isLeaf)
             return NULL;
 
         for (int i = 0; i <= cur->size; i++){
@@ -115,17 +115,18 @@ void BPlusTree::insertInternalNode(KeyStruct data, Node* parent, Node* child) {
     tempKeyStruct[i] =  data;
     tempPointers[i + 1] = child;
 
-
+    
     Node *newInternal = new Node();
     newInternal->isLeaf = false;
 
-    //smallest value from second node will be extracted at lifted as new root node
-    KeyStruct newRootKey = tempKeyStruct[parent->size];
-    
+
     parent->size = ceil(MAX / 2.00);
     newInternal->size = floor(MAX / 2.00);
 
-    
+
+
+    //smallest value from second node will be extracted at lifted as new root node
+    KeyStruct newRootKey = tempKeyStruct[parent->size];
     
 
     //insert keys and pointers back to parent and newInternal node
@@ -161,12 +162,16 @@ Node * BPlusTree::getRoot(){
 }
 
 KeyStruct BPlusTree::search(float value) {
-    Node *leafNode = getLeafNode(value); 
+    Node *leafNode = getLeafNode(value);
+    
     //search in leaf node
     for (int i = 0; i < leafNode->size; i++){
         if (value == leafNode->key[i].value) 
             return leafNode->key[i];
     }
+
+    
+    return {-1, {{-1, -1}}}; 
 }
 
 
@@ -199,7 +204,6 @@ void BPlusTree::insert(KeyStruct data) {
         root = new Node();
         root->size++;
         root->key[0] = data;
-        cout << "ROOT: "<< root->key[0].value << endl; 
         return; 
     }
 
@@ -211,8 +215,6 @@ void BPlusTree::insert(KeyStruct data) {
         cout << "Error in inserting new data: " << data.value << endl; 
         return; 
     }
-    cout<<"Leaf Node is found"<<endl;
-    cout << leafNode->key[0].value << endl;
     for (int i = 0; i < leafNode->size; i++){
         //check if key with same value already exists
         if (leafNode->key[i].value == data.value){
@@ -226,6 +228,7 @@ void BPlusTree::insert(KeyStruct data) {
     //insert new key into cur leaf node 
     //leafNode is not full yet
     if (leafNode->size < MAX){
+    
         int i = 0; 
         while (data.value > leafNode->key[i].value and i < leafNode->size) 
             i++;
@@ -239,6 +242,7 @@ void BPlusTree::insert(KeyStruct data) {
         leafNode->ptr[leafNode->size] = leafNode->ptr[leafNode->size - 1];
         leafNode->ptr[leafNode->size - 1] == NULL; 
     } else { 
+
         //leafNode is full make a new node
         Node *newLeaf = new Node();
 
@@ -251,12 +255,15 @@ void BPlusTree::insert(KeyStruct data) {
             i++;
         for (int j = MAX; j > i; j--)
             tempKeyStruct[j] = tempKeyStruct[j - 1]; 
-        tempKeyStruct[i] = data; 
+        tempKeyStruct[i] = data;
+
+     
+
+        // set up new leaf
+        leafNode->size =  ceil((MAX + 1) / 2.00);
+        newLeaf->size =  floor((MAX + 1)/2.00);
 
 
-        //set up new leaf;
-        leafNode->size = ceil((MAX + 1) / 2.00); 
-        newLeaf->size = floor((MAX + 1)/2.00);
 
         leafNode->ptr[leafNode->size] = newLeaf;
         newLeaf->ptr[newLeaf->size] = leafNode->ptr[MAX];
@@ -269,20 +276,23 @@ void BPlusTree::insert(KeyStruct data) {
             newLeaf->key[j] = tempKeyStruct[i]; 
 
 
+
         //modify the parent node
         //cur leaf is root node
         if (leafNode == root){
             Node *newRoot = new Node();
+            newRoot->isLeaf = false; 
             newRoot->key[0] = newLeaf->key[0];
             newRoot->ptr[0] = leafNode;
             newRoot->ptr[1] = newLeaf;
             newRoot->size++; 
-            root = newRoot; 
+            root = newRoot;
+
+
         } else{ // cur leaf is not root
 
             // get parent node
             Node *parent = findParent(root, leafNode);
-
             //update parent nodes for the new leaf
             insertInternalNode(newLeaf->key[0], parent, newLeaf); 
         }
@@ -403,7 +413,7 @@ void BPlusTree::displayAllKeys(){
             q.pop();
 
             //print nodes of current keys
-            cout << "["; 
+            cout << "[ "; 
             for (int i = 0; i < cur->size; i++) 
                 cout << cur->key[i].value << " ";
             cout << "] "; 
