@@ -1,6 +1,10 @@
 #include "Disk_Storage.h"
 #include "b-plus-tree.h"
 #include "Record.h"
+
+#include "Disk_Storage.cpp"
+#include "b-plus-tree.cpp"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -13,8 +17,6 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
-
-const int MAX = 256; 
 
 // Function to load records and write them directly to Disk_Storage
 void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlusTree& bPlusTree) {
@@ -77,14 +79,24 @@ void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlu
 
 int main() {
     // Step 1: Create Disk_Storage object
-    Disk_Storage diskStorage(sizeof(Record), 144, BLOCK_SIZE); // Initialize disk storage
-    string filePath = "D:\\Users Folder\\Documents\\GitHub\\db_management_system\\data\\games.txt"; // Full file path
+    Disk_Storage diskStorage(sizeof(Record), 500, BLOCK_SIZE); // Initialize disk storage
+    string filePath = "C:\\Users\\apiec\\Desktop\\database\\project 1 test 2\\data\\games.txt"; // Full file path
 
     // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
     BPlusTree bPlusTree; // Create B+ Tree object
     loadAndStoreRecords(filePath, diskStorage, bPlusTree); // Load records and write to disk storage
 
     cout << "Loaded records and written to disk storage.\n";
+    cout << "Loaded " << diskStorage.numrecords << " records from the file.\n";
+    cout << endl;
+    cout << "Blocks Used " << diskStorage.blocksused << endl;
+    cout << "Blocks Available " << diskStorage.availblocks << endl;
+    cout << "Number of Records " << diskStorage.numrecords << endl;
+    cout << "Memory Used " << diskStorage.memoryused << endl;
+    cout << "Record Size " << diskStorage.recordsize << endl;
+    cout << endl;
+    //diskStorage.listBlocks();
+    //diskStorage.listSpecificBlock(1);
 
     // Step 5: Report statistics about the B+ Tree
     int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree
