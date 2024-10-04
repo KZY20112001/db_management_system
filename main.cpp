@@ -110,11 +110,12 @@ int main() {
     cout << "Blocks Used " << diskStorage.blocksused << endl;
     cout << "Blocks Available " << diskStorage.availblocks << endl;
     cout << "Number of Records " << diskStorage.numrecords << endl;
-    cout << "Memory Used " << diskStorage.memoryused << endl;
+    cout << "Memory Used " << diskStorage.memoryused << "Bytes" << endl;
     cout << "Record Size " << diskStorage.recordsize << endl;
     cout << endl;
     //diskStorage.listBlocks();
-    //diskStorage.listSpecificBlock(1);
+    //cout << endl;
+    //diskStorage.listSpecificBlock(157);
 
     // Step 5: Report statistics about the B+ Tree
     int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree

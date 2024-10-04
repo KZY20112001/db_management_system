@@ -111,7 +111,7 @@ void Disk_Storage::listSpecificBlock(int id) {
 // Method to retrieve record using the key
 Record Disk_Storage::retrieveRecord(Record_Location recordlocation) {
     if (recordlocation.blocknum > blocksused || recordlocation.blocknum <= 0) throw runtime_error("Invalid block number");
-    if (recordlocation.offset > blocksize || recordlocation.offset < sizeof(int) * 2 + sizeof(unsigned char*)) throw runtime_error("Invalid offset value");
+    if (recordlocation.offset > blocksize || recordlocation.offset < static_cast<int>(sizeof(int) * 2 + sizeof(unsigned char*))) throw runtime_error("Invalid offset value");
 
     auto it = blockmap.find(recordlocation.blocknum);
     Block* block = it->second;
