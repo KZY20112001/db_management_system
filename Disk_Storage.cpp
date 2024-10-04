@@ -4,11 +4,11 @@
 
 using namespace std;
 
-Block::Block(int blocksize):
-    blocksize(blocksize), numrecords(0)
+Block::Block():
+    numrecords(0)
 {
-    int blockheadersize = sizeof(int) * 3 + sizeof(unsigned char*);
-    availsize = blocksize - blockheadersize;
+    int blockheadersize = sizeof(int) * 2 + sizeof(unsigned char*);
+    availsize = 4096 - blockheadersize;
 }
 
 // Method to display all records in the block for debugging
@@ -22,15 +22,18 @@ void Block::listRecord()
     cout << "Listing records in the block:" <<endl;
     for (int n=0; n < numrecords ; n++) {
         Record rec = *reinterpret_cast<Record*>(reservedspace + (n * sizeof(Record)));
-        cout << "FG_PCT_home: " << rec.FG_PCT_home << ", TEAM_ID_home: " 
-        << rec.TEAM_ID_home << ", PTS_Home: " 
-        << rec.PTS_home << ", FT_PCT_home: " 
-        << rec.FT_PCT_home << ", FG3_PCT_home: " 
-        << rec.FG3_PCT_home << ", AST_home: " 
-        << rec.AST_home << ", REB_home: " 
-        << rec.REB_home <<endl;
+        cout << "TEAM_ID_home: 1610612" << rec.TEAM_ID_home << ", "
+        << "PTS_home: " << static_cast<int>(rec.PTS_home) << ", "
+        << "FG_PCT_home: " << rec.FG_PCT_home << ", "
+        << "FT_PCT_home: " << rec.FT_PCT_home << ", "
+        << "FG3_PCT_home: " << rec.FG3_PCT_home << ", "
+        << "AST_home: " << static_cast<int>(rec.AST_home) << ", "
+        << "REB_home: " << static_cast<int>(rec.REB_home) << ", "
+        << "HOME_TEAM_WINS: " << rec.HOME_TEAM_WINS
+        << endl;
     }
 }
+
 
 Block::~Block() 
 {
@@ -108,7 +111,7 @@ void Disk_Storage::listSpecificBlock(int id) {
 // Method to retrieve record using the key
 Record Disk_Storage::retrieveRecord(Record_Location recordlocation) {
     if (recordlocation.blocknum > blocksused || recordlocation.blocknum <= 0) throw runtime_error("Invalid block number");
-    if (recordlocation.offset > blocksize || recordlocation.offset < sizeof(int) * 3 + sizeof(unsigned char*)) throw runtime_error("Invalid offset value");
+    if (recordlocation.offset > blocksize || recordlocation.offset < sizeof(int) * 2 + sizeof(unsigned char*)) throw runtime_error("Invalid offset value");
 
     auto it = blockmap.find(recordlocation.blocknum);
     Block* block = it->second;
@@ -129,11 +132,16 @@ tuple<int, float> Disk_Storage::linearScan(float start, float end) {
             if (start <= rec.FG_PCT_home && rec.FG_PCT_home <= end) {
                 ++recordcounter;
                 sumFG3_PCT_home += rec.FG3_PCT_home; // Accumulate FG3_PCT_home
-                cout << "Rec: " << recordcounter << ", FG_PCT_home: " << rec.FG_PCT_home 
-                     << ", TEAM_ID_home: " << rec.TEAM_ID_home << ", PTS_Home: " 
-                     << rec.PTS_home << ", FT_PCT_home: " << rec.FT_PCT_home 
-                     << ", FG3_PCT_home: " << rec.FG3_PCT_home << ", AST_home: " 
-                     << rec.AST_home << ", REB_home: " << rec.REB_home << endl;
+                cout << "Rec: " << recordcounter         
+                << "TEAM_ID_home: 1610612" << rec.TEAM_ID_home << ", "
+                << "PTS_home: " << static_cast<int>(rec.PTS_home) << ", "
+                << "FG_PCT_home: " << rec.FG_PCT_home << ", "
+                << "FT_PCT_home: " << rec.FT_PCT_home << ", "
+                << "FG3_PCT_home: " << rec.FG3_PCT_home << ", "
+                << "AST_home: " << static_cast<int>(rec.AST_home) << ", "
+                << "REB_home: " << static_cast<int>(rec.REB_home) << ", "
+                << "HOME_TEAM_WINS: " << rec.HOME_TEAM_WINS
+                << endl;
             }
             else if (rec.FG_PCT_home > end) {
                 cout << "Total Records: " << recordcounter << endl;

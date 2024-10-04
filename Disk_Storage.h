@@ -21,17 +21,12 @@ struct Record_Location
 class Block
 {
     public:
-        int blocksize;
         int availsize;
         int numrecords;
-        unsigned char reservedspace[4096 - sizeof(int) * 3 - sizeof(unsigned char*)];
-        Block(int blocksize = BLOCK_SIZE);
+        unsigned char reservedspace[4096 - sizeof(int) * 2 - sizeof(unsigned char*)];
+        Block();
         void listRecord();
         virtual ~Block();
-
-    protected:
-
-    private:
 };
 
 class Disk_Storage
@@ -49,7 +44,6 @@ class Disk_Storage
         int memoryused;
         int recordsize;
         Disk_Storage(int recordsize, int maxblock = MAX_BLOCK_ALLOWED, int blocksize = BLOCK_SIZE);
-        bool addBlock();
         std::tuple<Record_Location, float> writeRecord(int recordsize, Record record);
         Record retrieveRecord(Record_Location recordlocation);
         std::tuple<int, float> linearScan(float start, float end);
@@ -57,11 +51,8 @@ class Disk_Storage
         void listSpecificBlock(int id);
         virtual ~Disk_Storage();
 
-    protected:
-
     private:
-        std::fstream file;
-        std::string filename;
+        bool addBlock();
 };
 
 #endif // DISK_STORAGE_H

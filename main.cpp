@@ -53,14 +53,32 @@ void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlu
         }
 
         // Try parsing each field one by one. If parsing fails, the default value will remain.
-        iss >> record.TEAM_ID_home;
-        iss >> record.PTS_home;
-        iss >> record.FG_PCT_home;
-        iss >> record.FT_PCT_home;
-        iss >> record.FG3_PCT_home;
-        iss >> record.AST_home;
-        iss >> record.REB_home;
-        iss >> record.HOME_TEAM_WINS;
+        unsigned int team_id = 0; // Default value
+        int pts_home = 0; // Default value
+        float fg_pct_home = 0.0f; // Default value
+        float ft_pct_home = 0.0f; // Default value
+        float fg3_pct_home = 0.0f; // Default value
+        unsigned int ast_home = 0; // Default value
+        unsigned int reb_home = 0; // Default value
+        bool home_team_wins = false; // Default value
+
+        iss >> team_id;
+        iss >> pts_home;
+        iss >> fg_pct_home;
+        iss >> ft_pct_home;
+        iss >> fg3_pct_home;
+        iss >> ast_home;
+        iss >> reb_home;
+        iss >> home_team_wins;
+
+        record.TEAM_ID_home = static_cast<uint16_t>(team_id % 1000);;
+        record.PTS_home = static_cast<uint8_t>(pts_home);
+        record.FG_PCT_home = fg_pct_home;
+        record.FT_PCT_home = ft_pct_home;
+        record.FG3_PCT_home = fg3_pct_home;
+        record.AST_home = static_cast<uint8_t>(ast_home);
+        record.REB_home = static_cast<uint8_t>(reb_home);
+        record.HOME_TEAM_WINS = home_team_wins;
 
         // Write the record to Disk_Storage and get the location and key
         auto [recordLocation, key] = diskStorage.writeRecord(sizeof(Record), record);
