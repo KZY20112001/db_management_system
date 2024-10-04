@@ -107,17 +107,17 @@ int main() {
     cout << "Loaded records and written to disk storage.\n";
     cout << "Loaded " << diskStorage.numrecords << " records from the file.\n";
     cout << endl;
-    cout << "Blocks Used " << diskStorage.blocksused << endl;
-    cout << "Blocks Available " << diskStorage.availblocks << endl;
-    cout << "Number of Records " << diskStorage.numrecords << endl;
-    cout << "Memory Used " << diskStorage.memoryused << " Bytes" << endl;
-    cout << "Record Size " << diskStorage.recordsize << endl;
+    cout << "Blocks Used: " << diskStorage.blocksused << endl;
+    cout << "Blocks Available: " << diskStorage.availblocks << endl;
+    cout << "Number of Records: " << diskStorage.numrecords << endl;
+    cout << "Memory Used: " << diskStorage.memoryused << " Bytes" << endl;
+    cout << "Record Size: " << diskStorage.recordsize << endl;
     
     auto it = diskStorage.blockmap.find(1);
     Block* block = it->second;
 
-    cout << "Number of Records Stored in Full Block " << block->numrecords << endl;
-    cout << "Number of Records Stored in Last Block " << diskStorage.blockptr->numrecords << endl;
+    cout << "Number of Records Stored in Full Block: " << block->numrecords << endl;
+    cout << "Number of Records Stored in Last Block: " << diskStorage.blockptr->numrecords << endl;
 
     cout << endl;
     //diskStorage.listBlocks();
