@@ -132,22 +132,22 @@ tuple<int, float> Disk_Storage::linearScan(float start, float end) {
             if (start <= rec.FG_PCT_home && rec.FG_PCT_home <= end) {
                 ++recordcounter;
                 sumFG3_PCT_home += rec.FG3_PCT_home; // Accumulate FG3_PCT_home
-                cout << "Rec: " << recordcounter         
-                << "TEAM_ID_home: 1610612" << rec.TEAM_ID_home << ", "
-                << "PTS_home: " << static_cast<int>(rec.PTS_home) << ", "
-                << "FG_PCT_home: " << rec.FG_PCT_home << ", "
-                << "FT_PCT_home: " << rec.FT_PCT_home << ", "
-                << "FG3_PCT_home: " << rec.FG3_PCT_home << ", "
-                << "AST_home: " << static_cast<int>(rec.AST_home) << ", "
-                << "REB_home: " << static_cast<int>(rec.REB_home) << ", "
-                << "HOME_TEAM_WINS: " << rec.HOME_TEAM_WINS
-                << endl;
+                // cout << "Rec: " << recordcounter         
+                // << "TEAM_ID_home: 1610612" << rec.TEAM_ID_home << ", "
+                // << "PTS_home: " << static_cast<int>(rec.PTS_home) << ", "
+                // << "FG_PCT_home: " << rec.FG_PCT_home << ", "
+                // << "FT_PCT_home: " << rec.FT_PCT_home << ", "
+                // << "FG3_PCT_home: " << rec.FG3_PCT_home << ", "
+                // << "AST_home: " << static_cast<int>(rec.AST_home) << ", "
+                // << "REB_home: " << static_cast<int>(rec.REB_home) << ", "
+                // << "HOME_TEAM_WINS: " << rec.HOME_TEAM_WINS
+                // << endl;
             }
         }
     }
 
     float averageFG3_PCT_home = recordcounter > 0 ? sumFG3_PCT_home / recordcounter : 0.0f;
-    cout << "Total Records: " << recordcounter << endl;
+    // cout << "Total Records: " << recordcounter << endl;
     return make_tuple(iocounter, averageFG3_PCT_home); // Return IO count and average
 }
 

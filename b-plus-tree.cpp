@@ -10,25 +10,26 @@ using std::sort;
 using std::reverse; 
 
 
-int MAX = 3; 
-
 
 
 
 Node::Node() {
     key = new KeyStruct[MAX]; 
     ptr = new Node*[MAX + 1]; 
+    for (int i = 0; i <= MAX; ++i) {
+        ptr[i] = nullptr;  // Initialize each pointer to nullptr
+    }
     size = 0;
     isLeaf = true;
 }
 
 
 BPlusTree::BPlusTree() {
-    root = NULL;
+    root = nullptr;
 }
 
 Node* BPlusTree::getLeafNode(float value) {
-    if (!root) return NULL;
+    if (!root) return nullptr;
 
     Node *cur = root; 
         
@@ -52,7 +53,7 @@ Node* BPlusTree::getLeafNode(float value) {
 
 Node* BPlusTree::findParent(Node* cur, Node* child) {
     if (cur->isLeaf)
-        return NULL;
+        return nullptr;
 
     for (int i = 0; i <= cur->size; i++)
         if (cur->ptr[i] == child)
@@ -64,7 +65,7 @@ Node* BPlusTree::findParent(Node* cur, Node* child) {
         if (p)
             return p;
     }
-    return NULL; 
+    return nullptr; 
 }
 
 
@@ -178,9 +179,9 @@ vector<KeyStruct> BPlusTree::searchInterval(float lowerBound, float upperBound, 
     vector<KeyStruct> res;
     Node *leafNode = getLeafNode(lowerBound); 
     numNodesAccessed++;
-    
+
     while (leafNode){
-            for (int i = 0; i < leafNode->size; i++){
+        for (int i = 0; i < leafNode->size; i++){
                 auto data = leafNode->key[i]; 
                 if (data.value >= lowerBound and data.value <= upperBound)
                     res.push_back(data);
@@ -240,7 +241,7 @@ void BPlusTree::insert(KeyStruct data) {
         leafNode->key[i] = data;
         leafNode->size++;
         leafNode->ptr[leafNode->size] = leafNode->ptr[leafNode->size - 1];
-        leafNode->ptr[leafNode->size - 1] == NULL; 
+        leafNode->ptr[leafNode->size - 1] == nullptr; 
     } else { 
 
         //leafNode is full make a new node

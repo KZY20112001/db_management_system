@@ -17,6 +17,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+ 
 
 // Function to load records and write them directly to Disk_Storage
 void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlusTree& bPlusTree) {
@@ -98,7 +99,7 @@ void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlu
 int main() {
     // Step 1: Create Disk_Storage object
     Disk_Storage diskStorage(sizeof(Record), 500, BLOCK_SIZE); // Initialize disk storage
-    string filePath = "C:\\Users\\apiec\\Desktop\\database\\project 1 test 2\\data\\games.txt"; // Full file path
+    string filePath = "C:\\Users\\khant\\Documents\\Coding\\Projects\\db_management_system\\data\\games.txt"; // Full file path
 
     // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
     BPlusTree bPlusTree; // Create B+ Tree object
@@ -149,17 +150,20 @@ int main() {
     float lowerBound = 0.5;
     float upperBound = 0.8; 
     int numNodesAccessed = 0;
+    bPlusTree.displayAllKeys(); 
     auto startBPlus = std::chrono::high_resolution_clock::now();
     vector<KeyStruct> bPlusResults = bPlusTree.searchInterval(lowerBound, upperBound, numNodesAccessed);
     auto endBPlus = std::chrono::high_resolution_clock::now();
     float sumBPlusFG3_PCT_home = 0;
+    int count = 0; 
     for (const auto& keyStruct : bPlusResults) {
         for (const auto& recordLocation : keyStruct.addresses) {
             Record record = diskStorage.retrieveRecord(recordLocation);
             sumBPlusFG3_PCT_home += record.FG3_PCT_home;
         }
+        count+= keyStruct.addresses.size(); 
     }
-    float averageBPlusFG3_PCT_home = bPlusResults.size() > 0 ? sumBPlusFG3_PCT_home / bPlusResults.size() : 0.0f;
+    float averageBPlusFG3_PCT_home = bPlusResults.size() > 0 ? sumBPlusFG3_PCT_home / count : 0.0f;
     std::chrono::duration<double> elapsedBPlus = endBPlus - startBPlus;
 
     cout << "B+ Tree Statistics:" << endl;
