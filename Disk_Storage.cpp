@@ -143,11 +143,6 @@ tuple<int, float> Disk_Storage::linearScan(float start, float end) {
                 << "HOME_TEAM_WINS: " << rec.HOME_TEAM_WINS
                 << endl;
             }
-            else if (rec.FG_PCT_home > end) {
-                cout << "Total Records: " << recordcounter << endl;
-                float averageFG3_PCT_home = recordcounter > 0 ? sumFG3_PCT_home / recordcounter : 0.0f;
-                return make_tuple(iocounter, averageFG3_PCT_home); // Return IO count and average
-            }
         }
     }
 
