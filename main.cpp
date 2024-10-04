@@ -110,7 +110,7 @@ int main() {
     cout << "Blocks Used " << diskStorage.blocksused << endl;
     cout << "Blocks Available " << diskStorage.availblocks << endl;
     cout << "Number of Records " << diskStorage.numrecords << endl;
-    cout << "Memory Used " << diskStorage.memoryused << "Bytes" << endl;
+    cout << "Memory Used " << diskStorage.memoryused << " Bytes" << endl;
     cout << "Record Size " << diskStorage.recordsize << endl;
     cout << endl;
     //diskStorage.listBlocks();
