@@ -111,7 +111,7 @@ int main() {
     cout << "Blocks Available: " << diskStorage.availblocks << endl;
     cout << "Number of Records: " << diskStorage.numrecords << endl;
     cout << "Memory Used: " << diskStorage.memoryused << " Bytes" << endl;
-    cout << "Record Size: " << diskStorage.recordsize << endl;
+    cout << "Record Size: " << diskStorage.recordsize << " Bytes" << endl;
     
     auto it = diskStorage.blockmap.find(1);
     Block* block = it->second;
