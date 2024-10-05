@@ -149,7 +149,6 @@ int main() {
     float lowerBound = 0.5;
     float upperBound = 0.8; 
     int numNodesAccessed = 0;
-    //bPlusTree.displayAllKeys(); 
     
     std::set<int> blkCount;
     auto startBPlus = std::chrono::high_resolution_clock::now();
