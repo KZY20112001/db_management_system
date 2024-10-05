@@ -101,7 +101,9 @@ void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlu
 int main() {
     // Step 1: Create Disk_Storage object
     Disk_Storage diskStorage(sizeof(Record), 500, BLOCK_SIZE); // Initialize disk storage
-    string filePath = "C:\\Users\\apiec\\Desktop\\database\\project 1 test 2\\data\\games.txt"; // Full file path
+
+    string filePath = "C:\\Users\\khant\\Documents\\Coding\\Projects\\db_management_system\\data\\games.txt"; // Full file path
+    //string filePath = "C:\\Users\\apiec\\Desktop\\database\\project 1 test 2\\data\\games.txt"; // Full file path
 
     // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
     BPlusTree bPlusTree; // Create B+ Tree object
@@ -126,12 +128,12 @@ int main() {
 
     // Step 5: Report statistics about the B+ Tree
     int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree
-    int numNodes = 2;     //placeholder                // Get the number of nodes
+    int numNodes = bPlusTree.getNodeCount();     //placeholder                // Get the number of nodes
     Node* rootKeys = bPlusTree.getRoot(); // Get keys in the root node
     int numLevels = bPlusTree.getHeight(); // Get the number of levels
 
     // Print B+ Tree statistics
-    cout << "B+ Tree Statistics:" << endl;
+    cout << "B+ Tree Details:" << endl;
     cout << "N (number of keys): " << n << endl;
     cout << "Number of Nodes: " << numNodes << endl;
     cout << "Number of Levels: " << numLevels << endl;
@@ -142,7 +144,7 @@ int main() {
     }
      
     cout << endl;
-
+    // bPlusTree.displayAllKeys(); 
     // Task 3: B+ Tree vs Disk Storage Linear Scan
     
     // Perform range query on B+ Tree

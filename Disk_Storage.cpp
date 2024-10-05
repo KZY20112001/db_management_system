@@ -37,9 +37,9 @@ void Block::listRecord()
 
 Block::~Block() 
 {
-    if (reservedspace != nullptr) {
-            delete[] reservedspace;
-        }
+    // if (reservedspace != nullptr) {
+    //         delete[] reservedspace;
+    //     }
 }
 
 Disk_Storage::Disk_Storage(int recordsize, int maxblocks, int blocksize):
