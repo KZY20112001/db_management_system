@@ -38,7 +38,7 @@ void Block::listRecord()
 Block::~Block() 
 {
     if (reservedspace != nullptr) {
-            delete[] reservedspace;
+            free(reservedspace);
         }
 }
 
