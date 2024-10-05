@@ -144,7 +144,7 @@ int main() {
     }
      
     cout << endl;
-    // bPlusTree.displayAllKeys(); 
+    bPlusTree.displayAllKeys(); 
     // Task 3: B+ Tree vs Disk Storage Linear Scan
     
     // Perform range query on B+ Tree

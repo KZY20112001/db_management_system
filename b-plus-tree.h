@@ -5,7 +5,7 @@
 #include <vector>
 using std::vector; 
 
-const int MAX = 256; 
+const int MAX = 32; 
 
 // KeyStruct structure representing the final KeyStruct of a leaf node in the B+ Tree
 struct KeyStruct {
