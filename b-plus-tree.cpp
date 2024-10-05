@@ -241,7 +241,7 @@ void BPlusTree::insert(KeyStruct data) {
         leafNode->key[i] = data;
         leafNode->size++;
         leafNode->ptr[leafNode->size] = leafNode->ptr[leafNode->size - 1];
-        leafNode->ptr[leafNode->size - 1] == nullptr; 
+        leafNode->ptr[leafNode->size - 1] = nullptr; 
     } else { 
 
         //leafNode is full make a new node

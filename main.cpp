@@ -12,6 +12,8 @@
 #include <tuple>
 #include <chrono>
 #include <algorithm>
+#include <set>
+#include <iomanip>
 
 using std::cout;
 using std::endl;
@@ -99,7 +101,7 @@ void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlu
 int main() {
     // Step 1: Create Disk_Storage object
     Disk_Storage diskStorage(sizeof(Record), 500, BLOCK_SIZE); // Initialize disk storage
-    string filePath = "C:\\Users\\khant\\Documents\\Coding\\Projects\\db_management_system\\data\\games.txt"; // Full file path
+    string filePath = "C:\\Users\\apiec\\Desktop\\database\\project 1 test 2\\data\\games.txt"; // Full file path
 
     // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
     BPlusTree bPlusTree; // Create B+ Tree object
@@ -114,16 +116,13 @@ int main() {
     cout << "Memory Used: " << diskStorage.memoryused << " Bytes" << endl;
     cout << "Record Size: " << diskStorage.recordsize << " Bytes" << endl;
     
-    auto it = diskStorage.blockmap.find(1);
-    Block* block = it->second;
-
-    cout << "Number of Records Stored in Full Block: " << block->numrecords << endl;
-    cout << "Number of Records Stored in Last Block: " << diskStorage.blockptr->numrecords << endl;
-
+    if (diskStorage.blocksused >=1) {
+        auto it = diskStorage.blockmap.find(1);
+        Block* block = it->second;
+        cout << "Number of Records Stored in Full Block: " << block->numrecords << endl;
+        cout << "Number of Records Stored in Last Block: " << diskStorage.blockptr->numrecords << endl;
+    }
     cout << endl;
-    //diskStorage.listBlocks();
-    //cout << endl;
-    //diskStorage.listSpecificBlock(157);
 
     // Step 5: Report statistics about the B+ Tree
     int n = MAX;            //placeholder                // Get the max number of keys in the B+ Tree
@@ -150,39 +149,51 @@ int main() {
     float lowerBound = 0.5;
     float upperBound = 0.8; 
     int numNodesAccessed = 0;
-    bPlusTree.displayAllKeys(); 
+    //bPlusTree.displayAllKeys(); 
+    
+    std::set<int> blkCount;
     auto startBPlus = std::chrono::high_resolution_clock::now();
     vector<KeyStruct> bPlusResults = bPlusTree.searchInterval(lowerBound, upperBound, numNodesAccessed);
-    auto endBPlus = std::chrono::high_resolution_clock::now();
     float sumBPlusFG3_PCT_home = 0;
     int count = 0; 
     for (const auto& keyStruct : bPlusResults) {
         for (const auto& recordLocation : keyStruct.addresses) {
+            blkCount.insert(recordLocation.blocknum);
             Record record = diskStorage.retrieveRecord(recordLocation);
             sumBPlusFG3_PCT_home += record.FG3_PCT_home;
         }
         count+= keyStruct.addresses.size(); 
     }
     float averageBPlusFG3_PCT_home = bPlusResults.size() > 0 ? sumBPlusFG3_PCT_home / count : 0.0f;
+    auto endBPlus = std::chrono::high_resolution_clock::now();
+
     std::chrono::duration<double> elapsedBPlus = endBPlus - startBPlus;
 
+    cout<< endl;
     cout << "B+ Tree Statistics:" << endl;
     cout << "Index Nodes Accessed: " << numNodesAccessed << endl;
+    cout << "Data Blocks Accessed: " << blkCount.size() << endl;
+    cout << std::fixed << std::setprecision(5);
     cout << "Average FG3_PCT_home (B+ Tree): " << averageBPlusFG3_PCT_home << endl;
+    cout << std::fixed << std::setprecision(10);
     cout << "Elapsed time for B Plus Tree: " << elapsedBPlus.count() << " seconds" << endl;
-
+    
     // Perform linear scan on Disk_Storage
     auto startLinear = std::chrono::high_resolution_clock::now();
     auto [linearIOCount, averageLinearFG3_PCT_home] = diskStorage.linearScan(lowerBound, upperBound);
     auto endLinear = std::chrono::high_resolution_clock::now();
     
     std::chrono::duration<double> elapsedLinear = endLinear - startLinear;
-
+    cout<< endl;
+    
     cout << "Linear Scan Statistics:" << endl;
     cout << "Data Blocks Accessed: " << linearIOCount << endl;
+    cout << std::fixed << std::setprecision(5);
     cout << "Average FG3_PCT_home (Linear Scan): " << averageLinearFG3_PCT_home << endl;
+    cout << std::fixed << std::setprecision(10);
     cout << "Elapsed time for Linear Scan: " << elapsedLinear.count() << " seconds" << endl;
 
-
+    cout << "Press Enter to Exit" << endl;
+    std::cin.get(); // Wait for the user to press Enter before exiting
     return 0; // Exit the program
 }
