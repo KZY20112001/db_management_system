@@ -22,7 +22,7 @@ void Block::listRecord()
     cout << "Listing records in the block:" <<endl;
     for (int n=0; n < numrecords ; n++) {
         Record rec = *reinterpret_cast<Record*>(reservedspace + (n * sizeof(Record)));
-        cout << "TEAM_ID_home: 1610612" << rec.TEAM_ID_home << ", "
+        cout << "TEAM_ID_home: 16106127" << rec.TEAM_ID_home << ", "
         << "PTS_home: " << static_cast<int>(rec.PTS_home) << ", "
         << "FG_PCT_home: " << rec.FG_PCT_home << ", "
         << "FT_PCT_home: " << rec.FT_PCT_home << ", "
@@ -132,16 +132,6 @@ tuple<int, float> Disk_Storage::linearScan(float start, float end) {
             if (start <= rec.FG_PCT_home && rec.FG_PCT_home <= end) {
                 ++recordcounter;
                 sumFG3_PCT_home += rec.FG3_PCT_home; // Accumulate FG3_PCT_home
-                // cout << "Rec: " << recordcounter         
-                // << "TEAM_ID_home: 1610612" << rec.TEAM_ID_home << ", "
-                // << "PTS_home: " << static_cast<int>(rec.PTS_home) << ", "
-                // << "FG_PCT_home: " << rec.FG_PCT_home << ", "
-                // << "FT_PCT_home: " << rec.FT_PCT_home << ", "
-                // << "FG3_PCT_home: " << rec.FG3_PCT_home << ", "
-                // << "AST_home: " << static_cast<int>(rec.AST_home) << ", "
-                // << "REB_home: " << static_cast<int>(rec.REB_home) << ", "
-                // << "HOME_TEAM_WINS: " << rec.HOME_TEAM_WINS
-                // << endl;
             }
         }
     }

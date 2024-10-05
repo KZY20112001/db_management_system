@@ -74,7 +74,7 @@ void loadAndStoreRecords(const string& filePath, Disk_Storage& diskStorage, BPlu
         iss >> reb_home;
         iss >> home_team_wins;
 
-        record.TEAM_ID_home = static_cast<uint16_t>(team_id % 1000);
+        record.TEAM_ID_home = static_cast<uint16_t>(team_id % 100);
         record.PTS_home = static_cast<uint8_t>(pts_home);
         record.FG_PCT_home = fg_pct_home;
         record.FT_PCT_home = ft_pct_home;
