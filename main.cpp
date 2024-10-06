@@ -100,7 +100,6 @@ int main() {
     Disk_Storage diskStorage(sizeof(Record), 500, BLOCK_SIZE); // Initialize disk storage
 
     string filePath = "C:\\Users\\apiec\\Desktop\\database\\db_management_system\\data\\games.txt"; // Full file path
-    //string filePath = "C:\\Users\\apiec\\Desktop\\database\\project 1 test 2\\data\\games.txt"; // Full file path
 
     // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
     BPlusTree bPlusTree; // Create B+ Tree object
