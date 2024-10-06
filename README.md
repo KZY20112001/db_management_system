@@ -1,6 +1,6 @@
 # SC3020 Database System Principles
 
-##Installation Guide
+## Installation Guide
 1) Install Compiler
    - Install MinGW-x64 from [MSYS2](https://www.msys2.org/)
    - Add the path of your MinGW-w64 bin folder to the Windows PATH environment variable
