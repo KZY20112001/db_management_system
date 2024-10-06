@@ -2,9 +2,6 @@
 #include "b-plus-tree.h"
 #include "Record.h"
 
-#include "Disk_Storage.cpp"
-#include "b-plus-tree.cpp"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -102,7 +99,7 @@ int main() {
     // Step 1: Create Disk_Storage object
     Disk_Storage diskStorage(sizeof(Record), 500, BLOCK_SIZE); // Initialize disk storage
 
-    string filePath = "C:\\Users\\khant\\Documents\\Coding\\Projects\\db_management_system\\data\\games.txt"; // Full file path
+    string filePath = "C:\\Users\\apiec\\Desktop\\database\\db_management_system\\data\\games.txt"; // Full file path
     //string filePath = "C:\\Users\\apiec\\Desktop\\database\\project 1 test 2\\data\\games.txt"; // Full file path
 
     // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
