@@ -26,14 +26,16 @@ Node::Node() {
 
 BPlusTree::BPlusTree() {
     root = nullptr;
+    nodeCount = 0; 
 }
 
-Node* BPlusTree::getLeafNode(float value) {
+Node* BPlusTree::getLeafNode(float value, int &numNodesAccessed) {
     if (!root) return nullptr;
 
     Node *cur = root; 
         
     while (!cur->isLeaf){
+        numNodesAccessed++; 
         int size = cur->size; 
         for (int i = 0; i < size; i++){
             if (value < cur->key[i].value){
@@ -118,7 +120,7 @@ void BPlusTree::insertInternalNode(KeyStruct data, Node* parent, Node* child) {
     
     Node *newInternal = new Node();
     newInternal->isLeaf = false;
-
+    nodeCount++; 
 
     parent->size = ceil(MAX / 2.00);
     newInternal->size = floor(MAX / 2.00);
@@ -145,6 +147,7 @@ void BPlusTree::insertInternalNode(KeyStruct data, Node* parent, Node* child) {
 
     if (parent == root){
         Node *newRoot = new Node();
+        nodeCount++; 
         newRoot->key[0] = newRootKey;
         newRoot->ptr[0] = parent;
         newRoot->ptr[1] = newInternal;
@@ -161,8 +164,9 @@ Node * BPlusTree::getRoot(){
     return root; 
 }
 
-KeyStruct BPlusTree::search(float value) {
-    Node *leafNode = getLeafNode(value);
+KeyStruct BPlusTree::search(float value, int &numNodesAccessed) {
+    Node *leafNode = getLeafNode(value, numNodesAccessed);
+    numNodesAccessed++; 
     
     //search in leaf node
     for (int i = 0; i < leafNode->size; i++){
@@ -177,10 +181,10 @@ KeyStruct BPlusTree::search(float value) {
 
 vector<KeyStruct> BPlusTree::searchInterval(float lowerBound, float upperBound, int &numNodesAccessed) {
     vector<KeyStruct> res;
-    Node *leafNode = getLeafNode(lowerBound); 
-    numNodesAccessed++;
+    Node *leafNode = getLeafNode(lowerBound, numNodesAccessed); 
 
     while (leafNode){
+        numNodesAccessed++; 
         for (int i = 0; i < leafNode->size; i++){
                 auto data = leafNode->key[i]; 
                 if (data.value >= lowerBound and data.value <= upperBound)
@@ -190,7 +194,6 @@ vector<KeyStruct> BPlusTree::searchInterval(float lowerBound, float upperBound, 
                     return res; 
         }
         leafNode = leafNode->ptr[leafNode->size]; 
-        numNodesAccessed++;
     }
     
     return res; 
@@ -203,6 +206,7 @@ void BPlusTree::insert(KeyStruct data) {
     if (!root){
         cout << "Tree is empty. Creating a root... " << endl; 
         root = new Node();
+        nodeCount++;
         root->size++;
         root->key[0] = data;
         return; 
@@ -210,7 +214,8 @@ void BPlusTree::insert(KeyStruct data) {
 
 
     //get the correct leafnode 
-    Node *leafNode = getLeafNode(data.value);
+    int dummy = 0; 
+    Node *leafNode = getLeafNode(data.value, dummy);
     
     if (!leafNode){
         cout << "Error in inserting new data: " << data.value << endl; 
@@ -246,7 +251,7 @@ void BPlusTree::insert(KeyStruct data) {
 
         //leafNode is full make a new node
         Node *newLeaf = new Node();
-
+        nodeCount++; 
         vector<KeyStruct> tempKeyStruct(MAX+1);
         for (int i = 0; i < leafNode->size; i++)
             tempKeyStruct[i] = leafNode->key[i];
@@ -282,6 +287,7 @@ void BPlusTree::insert(KeyStruct data) {
         //cur leaf is root node
         if (leafNode == root){
             Node *newRoot = new Node();
+            nodeCount++; 
             newRoot->isLeaf = false; 
             newRoot->key[0] = newLeaf->key[0];
             newRoot->ptr[0] = leafNode;
@@ -320,6 +326,10 @@ int getHeightUtil(Node *cur){
 
 int BPlusTree::getHeight(){
     return getHeightUtil(root);
+}
+
+int BPlusTree::getNodeCount(){ 
+    return nodeCount; 
 }
 
 void BPlusTree::displayAllKeys(){ 
