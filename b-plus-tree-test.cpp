@@ -34,7 +34,8 @@ int main(){
 
     //search each key to test
     for (auto v: values){ 
-        KeyStruct res = tree.search(v);
+        int numNodesAccessed; 
+        KeyStruct res = tree.search(v, numNodesAccessed);
         if (res.value == -1)
             continue; 
         cout << "Number of results for key "<< v << " : " << res.addresses.size() << endl; 
@@ -45,12 +46,13 @@ int main(){
     }
 
     //search error key
-    KeyStruct res = tree.search(0);
+    int numNodesAccessed = 0; 
+    KeyStruct res = tree.search(0, numNodesAccessed);
     cout << "Not Found for 0: " << res.value << endl;
 
     //interval search key
-    int dummy = 0; 
-    vector<KeyStruct> r = tree.searchInterval(10, 40, dummy); 
+    numNodesAccessed = 0; 
+    vector<KeyStruct> r = tree.searchInterval(10, 40, numNodesAccessed); 
     cout << "Number of Keystruct: " << r.size() << endl; //should return 4 Keystructs (10,20,30,40)
 
     int h = tree.getHeight();
