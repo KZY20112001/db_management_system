@@ -1,6 +1,6 @@
-#include "Disk_Storage.h"
+#include "disk_storage.h"
 #include "b-plus-tree.h"
-#include "Record.h"
+#include "record.h"
 
 #include <iostream>
 #include <fstream>
@@ -99,7 +99,7 @@ int main() {
     // Step 1: Create Disk_Storage object
     Disk_Storage diskStorage(sizeof(Record), 500, BLOCK_SIZE); // Initialize disk storage
 
-    string filePath = "C:\\Users\\apiec\\Desktop\\database\\db_management_system\\data\\games.txt"; // Full file path
+    string filePath = "C:\\Users\\khant\\Documents\\Coding\\Projects\\db_management_system\\data\\games.txt"; // Full file path
 
     // Step 2: Load records directly into Disk_Storage and insert into B+ Tree
     BPlusTree bPlusTree; // Create B+ Tree object
@@ -114,7 +114,7 @@ int main() {
     cout << "Memory Used: " << diskStorage.memoryused << " Bytes" << endl;
     cout << "Record Size: " << diskStorage.recordsize << " Bytes" << endl;
     
-    if (diskStorage.blocksused >=1) {
+    if (diskStorage.blocksused >= 1) {
         auto it = diskStorage.blockmap.find(1);
         Block* block = it->second;
         cout << "Number of Records Stored in Full Block: " << block->numrecords << endl;

@@ -1,7 +1,7 @@
 #ifndef B_PLUS_TREE_H
 #define B_PLUS_TREE_H
 
-#include "Disk_Storage.h"
+#include "disk_storage.h"
 #include <vector>
 using std::vector; 
 
